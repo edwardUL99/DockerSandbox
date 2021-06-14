@@ -39,9 +39,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-// TODO add timeouts using awaitCompletion(timeout, unit). Have a currentProfiles map which maps container ID to the profile being used which
-// is cleared on removeContainer or cleanup
-
 /**
  * This class abstracts client access to the Docker API through {@link DockerClient}.
  *
