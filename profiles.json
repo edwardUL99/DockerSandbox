@@ -1,0 +1,50 @@
+{
+  "profiles": [
+    {
+      "name": "opengl_docker",
+      "image": "opengl_docker",
+      "container-name": "opengl_docker",
+      "user": "sandbox",
+      "working-directory": "/home/sandbox",
+      "limits": {
+        "cpuCount": 1,
+        "memory": 64
+      },
+      "networkDisabled": true
+    },
+    {
+      "name": "gcc_compile",
+      "image": "gcc-docker",
+      "container-name": "gcc-docker",
+      "user": "root",
+      "working-directory": "/home/sandbox",
+      "networkDisabled": true
+    },
+    {
+      "name": "gcc_run",
+      "image": "gcc-docker",
+      "container-name": "gcc-docker",
+      "user": "sandbox",
+      "working-directory": "/home/sandbox",
+      "networkDisabled": true
+    },
+    {
+      "name": "java_compile",
+      "image": "java-docker",
+      "container-name": "java-docker",
+      "user": "root",
+      "working-directory": "/home/sandbox",
+      "networkDisabled": true
+    },
+    {
+      "name": "java_run",
+      "image": "java-docker",
+      "container-name": "java-docker",
+      "user": "sandbox",
+      "working-directory": "/home/sandbox",
+      "networkDisabled": true
+    }
+  ],
+  "docker_host": "unix:///var/run/docker.sock",
+  "shell": "bash"
+}
