@@ -175,6 +175,9 @@ public final class DockerSandbox {
         checkConfiguration();
         checkStarted();
 
+        if (bindings == null)
+            bindings = new Docker.Bindings();
+
         String response = docker.createContainer(profile, command, bindings, workingDirectory, stdin, envs);
 
         if (uploadedFiles.length > 0)
