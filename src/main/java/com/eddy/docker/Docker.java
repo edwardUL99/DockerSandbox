@@ -284,7 +284,9 @@ public class Docker {
                         .withStdIn(in);
 
                 // if the command is cat, that will block until EOF (4), so send the EOF character at the end of the stdin
-                stdin = (command.get(2).trim().equals("cat")) ? (stdin + "\n" + (char)4):(stdin + "\n");
+                String commandStr = command.get(2).trim();
+                stdin = (commandStr.equals("cat") || commandStr.startsWith("cat")
+                        && commandStr.contains("-"))  ? (stdin + "\n" + (char)4):(stdin + "\n");
                 out.write(stdin.getBytes(StandardCharsets.UTF_8));
                 out.flush();
             } catch (IOException ex) {
