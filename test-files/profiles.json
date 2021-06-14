@@ -30,16 +30,16 @@
     },
     {
       "name": "java_compile",
-      "image": "gcc-java",
-      "container-name": "gcc-java",
+      "image": "java-docker",
+      "container-name": "java-docker",
       "user": "root",
       "working-directory": "/home/sandbox",
       "networkDisabled": true
     },
     {
       "name": "java_run",
-      "image": "gcc-java",
-      "container-name": "gcc-java",
+      "image": "java-docker",
+      "container-name": "java-docker",
       "user": "sandbox",
       "working-directory": "/home/sandbox",
       "networkDisabled": true
