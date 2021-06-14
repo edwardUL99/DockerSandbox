@@ -37,6 +37,10 @@ public class Result {
      * A flag to indicate if the docker container ran out of memory or not
      */
     private final boolean outOfMemory;
+    /**
+     * A flag to indicate if the program timed out
+     */
+    private final boolean timedOut;
 
     /**
      * Construct a Result object with the provided parameters
@@ -44,12 +48,14 @@ public class Result {
      * @param stdout the standard output stream as a String
      * @param stderr the standard error stream as a String
      * @param outOfMemory true if the container ran out of memory
+     * @param timedOut true if the program timed out
      */
-    public Result(int exitCode, String stdout, String stderr, boolean outOfMemory) {
+    public Result(int exitCode, String stdout, String stderr, boolean outOfMemory, boolean timedOut) {
         this.exitCode = exitCode;
         this.stdout = stdout;
         this.stderr = stderr;
         this.outOfMemory = outOfMemory;
+        this.timedOut = timedOut;
     }
 
     /**
@@ -82,5 +88,14 @@ public class Result {
      */
     public boolean isOutOfMemory() {
         return outOfMemory;
+    }
+
+    /**
+     * Determine whether the process this Result is produced from had timed out.
+     * If this returns true, {@link #getStdout()} or {@link #getStderr()} may be empty or not complete
+     * @return true if timed out, false if not
+     */
+    public boolean isTimedOut() {
+        return timedOut;
     }
 }

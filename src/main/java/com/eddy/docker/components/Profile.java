@@ -187,22 +187,40 @@ public class Profile {
          * The memory the docker container can use in MB
          */
         private final Long memory;
+        /**
+         * The timeout in seconds for the docker containers to run
+         */
+        private final Long timeout;
+        /**
+         * The default for cpuCount
+         */
+        public static final Long CPU_COUNT_DEFAULT = 4L;
+        /**
+         * The default for memory
+         */
+        public static final Long MEMORY_DEFAULT = 64L * 1000000L;
+        /**
+         * The default for the timeout
+         */
+        public static final Long TIMEOUT_DEFAULT = 3L;
 
         /**
-         * Create a default Limits object with 4 CPUs and 64MB memory
+         * Create a default Limits object with {@link #CPU_COUNT_DEFAULT}, {@link #MEMORY_DEFAULT} and {@link #TIMEOUT_DEFAULT}
          */
         public Limits() {
-            this(4L, 64L * 1000000L);
+            this(CPU_COUNT_DEFAULT, MEMORY_DEFAULT, TIMEOUT_DEFAULT);
         }
 
         /**
          * Create a Limits object with a specified number of cpus and memory
          * @param cpuCount count of CPUs that the docker container can use
          * @param memory the memory the docker container can use in MB
+         * @param timeout the timeout in seconds for the docker containers
          */
-        public Limits(Long cpuCount, Long memory) {
+        public Limits(Long cpuCount, Long memory, Long timeout) {
             this.cpuCount = cpuCount;
             this.memory = memory * 1000000L;
+            this.timeout = timeout;
         }
 
         /**
@@ -222,6 +240,14 @@ public class Profile {
         }
 
         /**
+         * Retrieves the timeout in seconds
+         * @return timeout in seconds
+         */
+        public Long getTimeout() {
+            return timeout;
+        }
+
+        /**
          * Checks if this limits object is equals to the provided one
          * @param o the object to check
          * @return the equality of the objects
@@ -232,7 +258,8 @@ public class Profile {
             if (o == null || getClass() != o.getClass()) return false;
             Limits limits = (Limits) o;
             return cpuCount.equals(limits.cpuCount) &&
-                    memory.equals(limits.memory);
+                    memory.equals(limits.memory) &&
+                    timeout.equals(limits.timeout);
         }
 
         /**

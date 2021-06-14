@@ -32,6 +32,7 @@ public final class Utils {
      * @param profiles the array of JSON profiles
      * @return list of parsed Profile objects
      */
+    @SuppressWarnings("unchecked")
     public static List<Profile> profilesFromJSON(JSONArray profiles) {
         List<Profile> profiles1 = new ArrayList<>(profiles.size());
 
@@ -40,7 +41,9 @@ public final class Utils {
             Profile.Limits limits;
             if (profile.containsKey("limits")) {
                 JSONObject limitsMap = (JSONObject) profile.get("limits");
-                limits = new Profile.Limits((Long) limitsMap.get("cpuCount"), (Long) limitsMap.get("memory"));
+                limits = new Profile.Limits((Long) limitsMap.getOrDefault("cpuCount", Profile.Limits.CPU_COUNT_DEFAULT),
+                        (Long) limitsMap.getOrDefault("memory", Profile.Limits.MEMORY_DEFAULT),
+                        (Long)limitsMap.getOrDefault("timeout", Profile.Limits.TIMEOUT_DEFAULT));
             } else {
                 limits = new Profile.Limits();
             }

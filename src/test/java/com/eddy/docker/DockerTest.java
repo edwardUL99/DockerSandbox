@@ -54,15 +54,16 @@ public class DockerTest {
         assertEquals(1, docker.getProfiles().size());
     }
 
-    private JSONObject loadJSON(String JSONFile) throws IOException, ParseException {
+    private JSONObject loadJSON() throws IOException, ParseException {
         JSONParser parser = new JSONParser();
 
-        return (JSONObject)parser.parse(new FileReader(new File(JSONFile)));
+        return (JSONObject)parser.parse(new FileReader(new File("test-files/profiles.json")));
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void shouldConfigureWithJSON() throws IOException, ParseException {
-        JSONObject json = loadJSON("test-files/profiles.json");
+        JSONObject json = loadJSON();
         List<Profile> profiles = Utils.profilesFromJSON((JSONArray)json.getOrDefault("profiles", new JSONArray()));
 
         docker = new Docker("profiles.json");
@@ -104,6 +105,7 @@ public class DockerTest {
         assertEquals("", result.getStdout().trim());
         assertEquals("", result.getStderr().trim());
         assertFalse(result.isOutOfMemory());
+        assertFalse(result.isTimedOut());
 
         String id1 = docker.createContainer("gcc_run", new Docker.Command("./main"), new Docker.Bindings(),
                 workingDirectory, null, new ArrayList<>());
@@ -121,6 +123,7 @@ public class DockerTest {
         assertEquals("Hello", result.getStdout().trim());
         assertEquals("", result.getStderr().trim());
         assertFalse(result.isOutOfMemory());
+        assertFalse(result.isTimedOut());
     }
 
     @Test
@@ -149,6 +152,7 @@ public class DockerTest {
         assertEquals("", result.getStdout().trim());
         assertEquals("", result.getStderr().trim());
         assertFalse(result.isOutOfMemory());
+        assertFalse(result.isTimedOut());
 
         String id1 = docker.createContainer("gcc_run", new Docker.Command("./main"), new Docker.Bindings(),
                 workingDirectory, "5", new ArrayList<>());
@@ -166,6 +170,7 @@ public class DockerTest {
         assertEquals("Enter a number: Your number is : 5", result.getStdout().trim().replaceAll("\\n", ""));
         assertEquals("", result.getStderr().trim());
         assertFalse(result.isOutOfMemory());
+        assertFalse(result.isTimedOut());
     }
 
     @Test
@@ -193,6 +198,7 @@ public class DockerTest {
         assertEquals("Hello. This is a test", result.getStdout().trim());
         assertEquals("", result.getStderr().trim());
         assertFalse(result.isOutOfMemory());
+        assertFalse(result.isTimedOut());
     }
 
     @Test
@@ -221,6 +227,7 @@ public class DockerTest {
         assertEquals("", result.getStdout().trim());
         assertEquals("", result.getStderr().trim());
         assertFalse(result.isOutOfMemory());
+        assertFalse(result.isTimedOut());
 
         String id1 = docker.createContainer("java_run", new Docker.Command("java Test"), new Docker.Bindings(),
                 workingDirectory, "This is line1\nThis is line2", new ArrayList<>());
@@ -238,6 +245,7 @@ public class DockerTest {
         assertEquals("Enter a value: The first value is: This is line1Enter another value: The second value is: This is line2", result.getStdout().trim().replaceAll("\\n", ""));
         assertEquals("", result.getStderr().trim());
         assertFalse(result.isOutOfMemory());
+        assertFalse(result.isTimedOut());
     }
 
     @Test
@@ -268,5 +276,32 @@ public class DockerTest {
         ids = containers.stream().map(Container::getId).collect(Collectors.toList());
 
         assertEquals(0, ids.size());
+    }
+
+    @Test
+    public void shouldTimeout() {
+        docker = new Docker(Docker.Shell.BASH);
+        docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox",
+                        "/home/sandbox",
+                new Profile.Limits(Profile.Limits.CPU_COUNT_DEFAULT, Profile.Limits.MEMORY_DEFAULT, 1L), false));
+
+        WorkingDirectory workingDirectory = docker.open("/home/sandbox");
+
+        String id = docker.createContainer("gcc_run", new Docker.Command("sleep 2"),
+                new Docker.Bindings(), workingDirectory, null, new ArrayList<>());
+
+        assertNotNull(id);
+
+        docker.startContainer(id);
+        Result result = docker.getResult(id);
+
+        docker.removeContainer(id);
+
+        assertNotNull(result);
+        assertEquals(0, result.getExitCode());
+        assertEquals("", result.getStdout().trim());
+        assertEquals("", result.getStderr().trim());
+        assertFalse(result.isOutOfMemory());
+        assertTrue(result.isTimedOut());
     }
 }

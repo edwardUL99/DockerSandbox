@@ -36,6 +36,11 @@ import java.io.*;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+// TODO add timeouts using awaitCompletion(timeout, unit). Have a currentProfiles map which maps container ID to the profile being used which
+// is cleared on removeContainer or cleanup
 
 /**
  * This class abstracts client access to the Docker API through {@link DockerClient}.
@@ -57,6 +62,10 @@ public class Docker {
      * The profiles that have been loaded in from a JSON file or added programmatically by {@link #addProfiles(Profile...)}
      */
     private final Map<String, Profile> profiles = new HashMap<>();
+    /**
+     * This map is used to keep track of the profiles being used by a container. It is a mapping of container ID to profile
+     */
+    private final Map<String, Profile> usedProfiles = new HashMap<>();
     /**
      * The shell the docker containers should have commands run with
      */
@@ -119,6 +128,7 @@ public class Docker {
      * @throws IOException if an error occurs
      * @throws ParseException if the JSON cannot be parsed
      */
+    @SuppressWarnings("unchecked")
     private void configureFromJSON(String filename) throws IOException, ParseException {
         JSONParser parser = new JSONParser();
         FileReader reader = new FileReader(new File(filename));
@@ -270,6 +280,7 @@ public class Docker {
 
         String id = response.getId();
         createdContainers.add(id);
+        usedProfiles.put(id, profile);
 
         if (requiresStdin) {
             try {
@@ -322,6 +333,7 @@ public class Docker {
         dockerClient.removeContainerCmd(containerId)
                 .withForce(true).exec();
         createdContainers.remove(containerId);
+        usedProfiles.remove(containerId);
     }
 
     /**
@@ -340,19 +352,27 @@ public class Docker {
      * Retrieve output from the specified container. If this was a container that required stdin, it would attach to the container,
      * and retrieve the output. Otherwise, it just starts the container with a log command and retrieves the logs
      * @param containerId the ID of the container to retrieve output from
+     * @param timedOut a reference to determine if the process timedOut or not
      * @return stdout at index 0 and stderr at index 1
      * @throws InterruptedException if the thread gets interrupted waiting for it to be completed
      */
-    private String[] getOutput(String containerId) throws InterruptedException {
+    private String[] getOutput(String containerId, AtomicBoolean timedOut) throws InterruptedException {
+        Profile profile = usedProfiles.get(containerId);
+
+        if (profile == null)
+            throw new IllegalStateException("The container: " + containerId + " has not been created yet and has no profile assigned to it");
+
+        Long timeOut = profile.getLimits().getTimeout();
+
         if (attachContainerCmd == null) {
             LogContainerCmd containerCmd = getLogContainerCommand(containerId);
             ContainerOutputHandler handler = new ContainerOutputHandler();
-            containerCmd.exec(handler).awaitCompletion();
+            timedOut.set(!containerCmd.exec(handler).awaitCompletion(timeOut, TimeUnit.SECONDS));
 
             return handler.getOutput();
         } else {
             ContainerInputOutputHandler handler = new ContainerInputOutputHandler(attachContainerCmd);
-            attachContainerCmd.exec(handler).awaitCompletion();
+            timedOut.set(!attachContainerCmd.exec(handler).awaitCompletion(timeOut, TimeUnit.SECONDS));
 
             attachContainerCmd = null;
 
@@ -368,7 +388,8 @@ public class Docker {
      */
     public Result getResult(String containerId) {
         try {
-            String[] output = getOutput(containerId);
+            AtomicBoolean timedOut = new AtomicBoolean(false);
+            String[] output = getOutput(containerId, timedOut);
             InspectContainerResponse inspected = inspect(containerId);
             InspectContainerResponse.ContainerState state = inspected.getState();
 
@@ -381,7 +402,7 @@ public class Docker {
 
             Boolean oom = state.getOOMKilled();
 
-            return new Result(exit_code, output[0], output[1], oom != null && oom);
+            return new Result(exit_code, output[0], output[1], oom != null && oom, timedOut.get());
         } catch (InterruptedException ex) {
             throw new DockerException("An exception occurred waiting for the container to complete", ex);
         }
@@ -401,7 +422,9 @@ public class Docker {
     }
 
     /**
-     * This class represents a list of bindings for volumes on the docker container and host machine
+     * This class represents a list of bindings for volumes on the docker container and host machine.
+     * A binding is defined as a String in the same way you would define one on the command line:
+     * "/path/on/local":"/path/on/docker"
      */
     public static class Bindings extends ArrayList<String> {
         /**
