@@ -35,45 +35,38 @@ import com.eddy.docker.Docker;
 import com.eddy.docker.DockerSandbox;
 import com.eddy.docker.components.Result;
 import com.eddy.docker.components.WorkingDirectory;
-import org.json.simple.parser.ParseException;
-
-import java.io.IOException;
 
 public class Example {
     public static void main(String[] args) {
+        DockerSandbox.configure("profiles.json"); // see profiles.json in the root of the project for the example file
+        // Or you can do DockerSandbox.configure(Docker.Shell.SH or Docker.Shell.BASH, profiles)
+        DockerSandbox.start("/home/sandbox");
         try {
-            DockerSandbox.configure("profiles.json"); // see profiles.json in the root of the project for the example file
-            // Or you can do DockerSandbox.configure(Docker.Shell.SH or Docker.Shell.BASH, profiles)
-            DockerSandbox.start("/home/sandbox");
-            try {
-                Docker.Bindings bindings = new Docker.Bindings();
-                bindings.addBinding("/path/to/local:/path/to/remote");
-                DockerSandbox.setBindings(bindings);
+            Docker.Bindings bindings = new Docker.Bindings();
+            bindings.addBinding("/path/to/local:/path/to/remote");
+            DockerSandbox.setBindings(bindings);
 
-                DockerSandbox.addEnvironmentVariables("VAR1=VALUE1", "VAR2=VALUE2");
+            DockerSandbox.addEnvironmentVariables("VAR1=VALUE1", "VAR2=VALUE2");
 
-                Docker.Command command = new Docker.Command("gcc main.c -o main");
-                Result result = DockerSandbox.run("gcc-docker", command,
-                        new WorkingDirectory.UploadedFile("main.c", "/path/to/main.c"));
+            Docker.Command command = new Docker.Command("gcc main.c -o main");
+            Result result = DockerSandbox.run("gcc-docker", command,
+                    new WorkingDirectory.UploadedFile("main.c", "/path/to/main.c"));
 
-                // do something with result
+            // do something with result
 
-                command = new Docker.Command("./main");
-                result = DockerSandbox.run("gcc-docker", command, "Stdin Input"); // notice how this run command uses the compiled file from the previous execution
-                                                                                            // but you don't have to re-upload it as generated files from the previous call
-                                                                                            // are shared
+            command = new Docker.Command("./main");
+            result = DockerSandbox.run("gcc-docker", command, "Stdin Input"); // notice how this run command uses the compiled file from the previous execution
+            // but you don't have to re-upload it as generated files from the previous call
+            // are shared
 
-                // do something with result
+            // do something with result
 
-                // the call to finish in the finally block will free any resources such as created files on the host machine in the working directory
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                DockerSandbox.onException(); // clean up any created containers that didn't get removed
-            } finally {
-                DockerSandbox.finish(); // ensure all resources are freed
-            }
-        } catch (IOException | ParseException ex) {
+            // the call to finish in the finally block will free any resources such as created files on the host machine in the working directory
+        } catch (Exception ex) {
             ex.printStackTrace();
+            DockerSandbox.onException(); // clean up any created containers that didn't get removed
+        } finally {
+            DockerSandbox.finish(); // ensure all resources are freed
         }
     }
 }
