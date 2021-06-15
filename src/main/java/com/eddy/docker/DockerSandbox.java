@@ -28,7 +28,7 @@ import java.util.List;
  * This class provides an "API" to abstract the classes of this module into an easy to use interface to allow commands to be
  * run in sandboxed docker containers. An example of compiling and running a c++ program is seen here: (A gcc_compile and gcc_run profile is set up
  * with a GCC image, with compile using user root and run using user sandbox. Our working directory is /home/sandbox)
- * <code>
+ * <pre>{@code
  *     DockerSandbox.configure("profiles.json"); // or DockerSandbox.configure(Docker.Shell.BASH, gcc_compile, gcc_run)
  *     // add environment variables with DockerSandbox.addEnvironmentVariables("VAR1=VALUE", "VAR2=VALUE");
  *     // add bindings:
@@ -45,7 +45,7 @@ import java.util.List;
  *          DockerSandbox.run("gcc_run", run_command); // notice that this run command will be able to access the compiled main.c from the previous command
  *
  *     To pass stdin in, you can either pass the String or a File in to use a File for stdin.
- * </code>
+ * }</pre>
  */
 public final class DockerSandbox {
     /**
@@ -163,7 +163,7 @@ public final class DockerSandbox {
 
     /**
      * Run the command with the specified profile, command and uploaded files with String stdin.
-     * {@link #configure(String)} or {@link #configure(String)} and {@link #start(String)} needs to be called first or else
+     * {@link #configure(com.eddy.docker.Docker.Shell, Profile...)} or {@link #configure(String)} and {@link #start(String)} needs to be called first or else
      * an IllegalStateException will be thrown
      * @param profile the profile to use
      * @param command the command to execute
@@ -205,7 +205,7 @@ public final class DockerSandbox {
     }
 
     /**
-     * Finished the system by releasing any resources and resetting this class. The configure and start methods will need
+     * Finishes the system by releasing any resources and resetting this class. The configure and start methods will need
      * to be called again after this call
      */
     public static void finish() {

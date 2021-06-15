@@ -78,5 +78,50 @@ you create a container with the same name.
 Similarly, it is important to have the `DockerSandbox.finish()` call in the finally block since that will clean up any files produced
 by the containers on the host machine.
 
+## Configuration
+The most configuration can be obtained by using a JSON file passed into `DockerSandbox.configure(String filename)`. The JSON
+file contains the following properties:
+```json
+{
+  "profiles": [
+    {
+      "name": "profile_name",
+      "image": "image_name[:version]",
+      "container-name": "name-of-created-container",
+      "user": "sandbox",
+      "working-directory": "/home/sandbox",
+      "limits": {
+        "cpuCount": 4,
+        "memory": 64,
+        "timeout": 3
+      },
+      "networkDisabled": true
+    }   
+  ],
+  "docker_host": "unix:///var/run/docker.sock",
+  "shell": "bash",
+  "docker_config": "/path/to/config/directory",
+  "docker_tls_verify": "default-value-if-left-out"    
+}
+```
+
+Profiles can have multiple profiles defined. If "limits" is left out, a default limits is used. The limits are defined as
+follows:
+- cpuCount: The number of CPUs the container should use
+- memory: The max amount of memory in MB the container should use
+- timeout: The max length of time in seconds container execution should be waited for
+
+The only accepted "shell" values at the moment are: [bash, sh].
+
+If you don't want to configure with JSON (at the moment, this way, you cannot set docker_host, docker_config 
+or docker_tls_verify), you can use `DockerSandbox.configure(Shell, Profile...)`.
+
+The profile in the above JSON file can be constructed as:
+```
+Profile profile = new Profile("profile_name", "image_name[:version]", "name-of-created-container", "sandbox", "/home/sandbox",
+    new Profile.Limits(4L, 64L, 3L), true);
+DockerSandbox.configure(Docker.Shell.BASH, profile);
+```
+
 ## Installation
 The simplest way to install this JAR is to build the JAR and add it to your CLASSPATH
