@@ -248,9 +248,10 @@ public class Docker {
     }
 
     /**
-     * Create a container and retrieve the ID of the created container
+     * Create a container and retrieve the ID of the created container.
      *
-     * <b>Warning: </b> if using stdin, you have to ensure that the command will in fact use stdin or else the getResult method will block
+     * <b>Warning: </b> if using stdin, you have to ensure that the command will in fact use stdin or else the call
+     * to getResult will return a Result with {@link Result#isTimedOut()} returning true
      *
      * @param profileName the name of the profile to look up. If a profile cannot be found, IllegalArgumentException will be thrown
      * @param command the command to run on the container
