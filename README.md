@@ -123,9 +123,8 @@ Profile profile = new Profile("profile_name", "image_name[:version]", "name-of-c
 DockerSandbox.configure(Docker.Shell.BASH, profile);
 ```
 
-**Note:** As of release 0.2.1, the working-directory parameter in Profile is no longer used.
+**Note:** As of release 0.3.0, the working-directory parameter in Profile has been removed.
 Instead, the working directory passed into `DockerSandbox.start(String workingDirectory)` is used.
-The Profile workingDirectory fields and methods will be removed soon
 
 ## Installation
 The simplest way to install this JAR is to build the JAR and add it to your CLASSPATH

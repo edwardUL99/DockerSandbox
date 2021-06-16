@@ -48,13 +48,6 @@ public class WorkingDirectory implements Closeable {
      */
     private final String name;
     /**
-     * The location on the host machine this volume is mounted to
-     * @deprecated Will be replaced by checking for nullity of the CreateVolumeResponse returned by {@link Docker#createVolume(String)}
-     * . For now, it will still be assigned, but will not determine if the working directory is in a usable state or not
-     */
-    @Deprecated
-    private String mountPoint;
-    /**
      * A field to check if the volume has been created or not
      */
     private CreateVolumeResponse volumeResponse;
@@ -91,24 +84,11 @@ public class WorkingDirectory implements Closeable {
     }
 
     /**
-     * The mount point of the volume on the host machine
-     * @return the path to the volume on the host machine
-     * @deprecated this method is now replaced with {@link #getName()}. You shouldn't need to know the mount point
-     * in order to interact with it. {@link Docker#createContainer(String, Docker.Command, Docker.Bindings, WorkingDirectory, String, List)}
-     * uses {@link #getName()} now instead of the mount point
-     */
-    @Deprecated
-    public String getMountPoint() {
-        return mountPoint;
-    }
-
-    /**
      * Opens this working directory to make it available to add files to it.
      * This needs to be called before {@link #addFiles(String, UploadedFile...)}
      */
     public void open() {
         volumeResponse = docker.createVolume(name);
-        mountPoint = volumeResponse.getMountpoint();
         closed = false;
     }
 
@@ -248,7 +228,6 @@ public class WorkingDirectory implements Closeable {
     public void close() throws IOException {
         try {
             docker.removeVolume(name);
-            mountPoint = null;
             volumeResponse = null;
             volume = null;
             closed = true;
