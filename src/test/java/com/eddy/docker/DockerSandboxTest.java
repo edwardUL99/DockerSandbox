@@ -103,12 +103,10 @@ public class DockerSandboxTest {
     @Test
     public void shouldRunEntireFlow() {
         try {
-            DockerSandbox.configure(Docker.Shell.BASH, new Profile("java_run", "java-docker", "java-docker", "sandbox",
-                            "/home/sandbox"),
-                    new Profile("java_compile", "java-docker", "java-docker", "root", "/home/sandbox"),
-                    new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox",
-                            "/home/sandbox"),
-                    new Profile("gcc_compile", "gcc-docker", "gcc-docker", "root", "/home/sandbox"));
+            DockerSandbox.configure(Docker.Shell.BASH, new Profile("java_run", "java-docker", "java-docker", "sandbox"),
+                    new Profile("java_compile", "java-docker", "java-docker", "root"),
+                    new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox"),
+                    new Profile("gcc_compile", "gcc-docker", "gcc-docker", "root"));
 
             assertNotNull(DockerSandbox.getDocker());
 

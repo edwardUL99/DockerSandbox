@@ -18,12 +18,14 @@ package com.eddy.docker.components;
 
 import com.eddy.docker.Docker;
 import com.eddy.docker.exceptions.DockerException;
+import com.github.dockerjava.api.command.CreateVolumeResponse;
 import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.model.Volume;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
+import java.util.List;
 import java.util.UUID;
 import java.util.zip.GZIPOutputStream;
 
@@ -46,9 +48,9 @@ public class WorkingDirectory implements Closeable {
      */
     private final String name;
     /**
-     * The location on the host machine this volume is mounted to
+     * A field to check if the volume has been created or not
      */
-    private String mountPoint;
+    private CreateVolumeResponse volumeResponse;
     /**
      * The working directory of where the files added are made available on the docker container
      */
@@ -74,11 +76,11 @@ public class WorkingDirectory implements Closeable {
     }
 
     /**
-     * The mount point of the volume on the host machine
-     * @return the path to the volume on the host machine
+     * Get the name of the volume behind this working directory
+     * @return name of workdir volume
      */
-    public String getMountPoint() {
-        return mountPoint;
+    public String getName() {
+        return name;
     }
 
     /**
@@ -86,8 +88,7 @@ public class WorkingDirectory implements Closeable {
      * This needs to be called before {@link #addFiles(String, UploadedFile...)}
      */
     public void open() {
-        mountPoint = docker.createVolume(name)
-                            .getMountpoint();
+        volumeResponse = docker.createVolume(name);
         closed = false;
     }
 
@@ -156,14 +157,17 @@ public class WorkingDirectory implements Closeable {
     }
 
     /**
-     * Add the list of files to the working directory for the container specified with the provided container id
+     * Add the list of files to the working directory for the container specified with the provided container id.
+     *
+     * If {@link #open()} has not been called or {@link #close()} has been called, a DockerException will be thrown
+     *
      * @param containerId the id of the container the files are being added for. Even if this is for a specific container,
      *                    other docker containers using this WorkingDirectory will be able to access the files
      * @param files the list of files to be uploaded
      */
     public void addFiles(String containerId, UploadedFile...files) {
-        if (mountPoint == null || closed)
-            throw new DockerException("This WorkingDirectory has been closed");
+        if (closed || volumeResponse == null)
+            throw new DockerException("This WorkingDirectory has not been opened or has been closed");
 
         try {
             TarArchiveOutputStream tarStream = null;
@@ -224,7 +228,7 @@ public class WorkingDirectory implements Closeable {
     public void close() throws IOException {
         try {
             docker.removeVolume(name);
-            mountPoint = null;
+            volumeResponse = null;
             volume = null;
             closed = true;
         } catch (ConflictException ex) {

@@ -61,9 +61,34 @@ public final class DockerSandbox {
      */
     private static Docker.Bindings bindings;
     /**
+     * A flag to indicate {@link #finish()} is being called by an improper shutdown
+     */
+    private static boolean improperShutdown = false;
+    /**
      * The environment variables that can be shared between each run call
      */
     private static final List<String> envs = new ArrayList<>();
+    /**
+     * This hook is registered when {@link #start(String)} is called to ensure cleanup if the program is terminated before a call to
+     * {@link #finish()} is made
+     */
+    private static final Thread shutdownHook = new Thread() {
+        /**
+         * If this thread was constructed using a separate
+         * {@code Runnable} run object, then that
+         * {@code Runnable} object's {@code run} method is called;
+         * otherwise, this method does nothing and returns.
+         * <p>
+         * Subclasses of {@code Thread} should override this method.
+         *
+         */
+        @Override
+        public void run() {
+            super.run();
+            improperShutdown = true;
+            finish();
+        }
+    };
 
     /**
      * Configure the system (and the Docker client) using the provided shell and profiles.
@@ -164,7 +189,8 @@ public final class DockerSandbox {
     /**
      * Run the command with the specified profile, command and uploaded files with String stdin.
      * {@link #configure(com.eddy.docker.Docker.Shell, Profile...)} or {@link #configure(String)} and {@link #start(String)} needs to be called first or else
-     * an IllegalStateException will be thrown
+     * an IllegalStateException will be thrown.
+     *
      * @param profile the profile to use
      * @param command the command to execute
      * @param stdin the standard input String to send to the docker container
@@ -192,7 +218,11 @@ public final class DockerSandbox {
 
     /**
      * Starts the system and readies it for calls to run. This call should have a subsequent call to {@link #finish()} after
-     * you are finished with the run calls to ensure that resources are released
+     * you are finished with the run calls to ensure that resources are released.
+     *
+     * A shutdown hook is added to force a call to {@link #finish()} if the program is terminated before {@link #finish()}
+     * is called (e.g. by Ctrl-C).
+     *
      * @param workingDirectory the path of the working directory on the docker container
      */
     public static void start(String workingDirectory) {
@@ -202,11 +232,15 @@ public final class DockerSandbox {
             throw new IllegalStateException("You must close the previous working directory before calling this one");
 
         DockerSandbox.workingDirectory = docker.open(workingDirectory);
+
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
 
     /**
      * Finishes the system by releasing any resources and resetting this class. The configure and start methods will need
-     * to be called again after this call
+     * to be called again after this call.
+     *
+     * This method removes the shutdown hook added by {@link #start(String)} if it is called normally and not by Ctrl-C
      */
     public static void finish() {
         try {
@@ -215,6 +249,9 @@ public final class DockerSandbox {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+
+        if (!improperShutdown)
+            Runtime.getRuntime().removeShutdownHook(shutdownHook);
 
         envs.clear();
         bindings = null;

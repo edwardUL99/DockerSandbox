@@ -45,10 +45,6 @@ public class Profile {
      */
     private final String user;
     /**
-     * The working directory inside the container
-     */
-    private final String workingDirectory;
-    /**
      * Specified limits for the docker container
      */
     private final Limits limits;
@@ -63,10 +59,9 @@ public class Profile {
      * @param imageName name of the docker image
      * @param containerName name of the container that will be produced from this profile
      * @param user the user to run the docker container under
-     * @param workingDirectory the working directory to run the container under
      */
-    public Profile(String profileName, String imageName, String containerName, String user, String workingDirectory) {
-        this(profileName, imageName, containerName, user, workingDirectory, new Limits(), false);
+    public Profile(String profileName, String imageName, String containerName, String user) {
+        this(profileName, imageName, containerName, user, new Limits(), false);
     }
 
     /**
@@ -75,16 +70,14 @@ public class Profile {
      * @param imageName name of the docker image
      * @param containerName name of the container that will be produced from this profile
      * @param user the user to run the docker container under
-     * @param workingDirectory the working directory to run the container under
      * @param limits specified limits that the produced container should follow
      */
-    public Profile(String profileName, String imageName, String containerName, String user, String workingDirectory, Limits limits,
+    public Profile(String profileName, String imageName, String containerName, String user, Limits limits,
                    boolean networkDisabled) {
         this.profileName = profileName;
         this.imageName = imageName;
         this.containerName = containerName;
         this.user = user;
-        this.workingDirectory = workingDirectory;
         this.limits = limits;
         this.networkDisabled = networkDisabled;
     }
@@ -124,14 +117,6 @@ public class Profile {
     }
 
     /**
-     * Retrieve the working directory for the docker container
-     * @return container working directory
-     */
-    public String getWorkingDirectory() {
-        return workingDirectory;
-    }
-
-    /**
      * Retrieve the limits this profile specifies for the container to adhere to
      * @return limits for the container
      */
@@ -162,7 +147,6 @@ public class Profile {
                 imageName.equals(profile.imageName) &&
                 containerName.equals(profile.containerName) &&
                 user.equals(profile.user) &&
-                workingDirectory.equals(profile.workingDirectory) &&
                 limits.equals(profile.limits);
     }
 
@@ -172,7 +156,7 @@ public class Profile {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(profileName, imageName, containerName, user, workingDirectory, limits, networkDisabled);
+        return Objects.hash(profileName, imageName, containerName, user, limits, networkDisabled);
     }
 
     /**
@@ -242,6 +226,7 @@ public class Profile {
         /**
          * Retrieves the timeout in seconds
          * @return timeout in seconds
+         * @since 0.2.0
          */
         public Long getTimeout() {
             return timeout;

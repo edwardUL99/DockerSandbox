@@ -220,20 +220,21 @@ public class Docker {
     private CreateContainerResponse createContainerResponse(WorkingDirectory workingDirectory, Profile profile,
                                                             Command command, Bindings bindings, List<String> envs, boolean requiresStdin) {
         int bindingsSize = bindings.size();
-        Bind[] bindingsArr = new Bind[bindingsSize + 1];
+        Bind[] bindingsArr = new Bind[bindingsSize];
         int i = 0;
 
         for (String binding : bindings)
             bindingsArr[i++] = Bind.parse(binding);
 
-        // Add an extra binding for our working directory volume
-        bindingsArr[bindingsSize] = new Bind(workingDirectory.getMountPoint(), workingDirectory.getVolume());
+        String workDir = workingDirectory.getVolume().getPath();
 
         Profile.Limits limits = profile.getLimits();
 
         return dockerClient.createContainerCmd(profile.getImageName())
                 .withCmd(command)
                 .withHostConfig(HostConfig.newHostConfig()
+                        .withMounts(Collections.singletonList(new Mount().withSource(workingDirectory.getName())
+                                .withTarget(workDir).withVolumeOptions(new VolumeOptions())))
                         .withBinds(bindingsArr)
                         .withCpuCount(limits.getCpuCount())
                         .withMemory(limits.getMemory()))
@@ -241,7 +242,7 @@ public class Docker {
                 .withEnv(envs)
                 .withUser(profile.getUser())
                 .withName(profile.getContainerName())
-                .withWorkingDir(profile.getWorkingDirectory())
+                .withWorkingDir(workDir)
                 .withNetworkDisabled(profile.isNetworkDisabled())
                 .withTty(false)
                 .exec();
@@ -428,9 +429,11 @@ public class Docker {
         /**
          * Add a binding to the current bindings
          * @param binding the binding to add
+         * @return this so you can chain the creation
          */
-        public void addBinding(String binding) {
+        public Bindings addBinding(String binding) {
             add(binding);
+            return this;
         }
     }
 

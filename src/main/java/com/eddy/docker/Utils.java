@@ -51,8 +51,7 @@ public final class Utils {
             String profileName = (String)profile.get("name");
             String imageName = (String)profile.getOrDefault("image", "NO-IMAGE-SPECIFIED");
             profiles1.add(new Profile(profileName, imageName, (String)profile.getOrDefault("container-name", imageName),
-                    (String)profile.getOrDefault("user", "root"),
-                    (String)profile.getOrDefault("working-directory", "/"), limits,
+                    (String)profile.getOrDefault("user", "root"), limits,
                     (Boolean)profile.getOrDefault("networkDisabled", false)));
         }
 
