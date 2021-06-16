@@ -17,6 +17,14 @@ same docker image either, but the files can still be shared (within reason).
 - Unix machine (will look into other platform compatibility soon)
 - Maven 3.6.3 to build
 
+## Installation
+The simplest way to install is to add the dependency to your pom.xml. The coordinates are as follows:
+```xml
+<artifactId>io.github.edwardUL99</artifactId>
+<groupId>docker-sandbox</groupId>
+<version>0.3.0</version>
+```
+
 ## Build instructions
 To build the JAR file, run the command:
 ```bash
@@ -125,6 +133,3 @@ DockerSandbox.configure(Docker.Shell.BASH, profile);
 
 **Note:** As of release 0.3.0, the working-directory parameter in Profile has been removed.
 Instead, the working directory passed into `DockerSandbox.start(String workingDirectory)` is used.
-
-## Installation
-The simplest way to install this JAR is to build the JAR and add it to your CLASSPATH
