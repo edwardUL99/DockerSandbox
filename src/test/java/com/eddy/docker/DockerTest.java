@@ -27,6 +27,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -49,8 +51,7 @@ public class DockerTest {
         assertEquals(shell, docker.getShell());
         assertEquals(0, docker.getProfiles().size());
 
-        docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox",
-                "/home/sandbox"));
+        docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox"));
         assertEquals(1, docker.getProfiles().size());
     }
 
@@ -80,11 +81,10 @@ public class DockerTest {
     }
 
     @Test
-    public void shouldDoContainerRunNoStdin() {
+    public void shouldDoContainerRunNoStdin() throws IOException {
         docker = new Docker(Docker.Shell.BASH);
-        docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox",
-                "/home/sandbox"),
-                new Profile("gcc_compile", "gcc-docker", "gcc-docker", "root", "/home/sandbox"));
+        docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox"),
+                new Profile("gcc_compile", "gcc-docker", "gcc-docker", "root"));
 
         WorkingDirectory workingDirectory = docker.open("/home/sandbox");
 
@@ -118,6 +118,8 @@ public class DockerTest {
 
         docker.removeContainer(id1);
 
+        workingDirectory.close();
+
         assertNotNull(result);
         assertEquals(0, result.getExitCode());
         assertEquals("Hello", result.getStdout().trim());
@@ -127,11 +129,10 @@ public class DockerTest {
     }
 
     @Test
-    public void shouldDoContainerRunStdin() {
+    public void shouldDoContainerRunStdin() throws IOException {
         docker = new Docker(Docker.Shell.BASH);
-        docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox",
-                        "/home/sandbox"),
-                new Profile("gcc_compile", "gcc-docker", "gcc-docker", "root", "/home/sandbox"));
+        docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox"),
+                new Profile("gcc_compile", "gcc-docker", "gcc-docker", "root"));
 
         WorkingDirectory workingDirectory = docker.open("/home/sandbox");
 
@@ -165,6 +166,8 @@ public class DockerTest {
 
         docker.removeContainer(id1);
 
+        workingDirectory.close();
+
         assertNotNull(result);
         assertEquals(0, result.getExitCode());
         assertEquals("Enter a number: Your number is : 5", result.getStdout().trim().replaceAll("\\n", ""));
@@ -174,12 +177,11 @@ public class DockerTest {
     }
 
     @Test
-    public void shouldDoContainerStdinCatCommand() {
+    public void shouldDoContainerStdinCatCommand() throws IOException {
         // cat is a special case as it doesn't terminate until it receives Ctrl-D (character 4)
         docker = new Docker(Docker.Shell.BASH);
-        docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox",
-                        "/home/sandbox"),
-                new Profile("gcc_compile", "gcc-docker", "gcc-docker", "root", "/home/sandbox"));
+        docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox"),
+                new Profile("gcc_compile", "gcc-docker", "gcc-docker", "root"));
 
         WorkingDirectory workingDirectory = docker.open("/home/sandbox");
 
@@ -193,6 +195,8 @@ public class DockerTest {
 
         docker.removeContainer(id);
 
+        workingDirectory.close();
+
         assertNotNull(result);
         assertEquals(0, result.getExitCode());
         assertEquals("Hello. This is a test", result.getStdout().trim());
@@ -202,11 +206,10 @@ public class DockerTest {
     }
 
     @Test
-    public void shouldDoStdinJava() {
+    public void shouldDoStdinJava() throws IOException {
         docker = new Docker(Docker.Shell.BASH);
-        docker.addProfiles(new Profile("java_run", "java-docker", "java-docker", "sandbox",
-                        "/home/sandbox"),
-                new Profile("java_compile", "java-docker", "java-docker", "root", "/home/sandbox"));
+        docker.addProfiles(new Profile("java_run", "java-docker", "java-docker", "sandbox"),
+                new Profile("java_compile", "java-docker", "java-docker", "root"));
 
         WorkingDirectory workingDirectory = docker.open("/home/sandbox");
 
@@ -240,6 +243,8 @@ public class DockerTest {
 
         docker.removeContainer(id1);
 
+        workingDirectory.close();
+
         assertNotNull(result);
         assertEquals(0, result.getExitCode());
         assertEquals("Enter a value: The first value is: This is line1Enter another value: The second value is: This is line2", result.getStdout().trim().replaceAll("\\n", ""));
@@ -249,11 +254,10 @@ public class DockerTest {
     }
 
     @Test
-    public void shouldCleanUpUnRemovedContainers() {
+    public void shouldCleanUpUnRemovedContainers() throws IOException {
         docker = new Docker(Docker.Shell.BASH);
-        docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox",
-                        "/home/sandbox"),
-                new Profile("gcc_compile", "gcc-docker", "gcc-docker1", "root", "/home/sandbox"));
+        docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox"),
+                new Profile("gcc_compile", "gcc-docker", "gcc-docker1", "root"));
 
         WorkingDirectory workingDirectory = docker.open("/home/sandbox");
 
@@ -272,6 +276,8 @@ public class DockerTest {
 
         docker.cleanupContainers();
 
+        workingDirectory.close();
+
         containers = client.listContainersCmd().withIdFilter(new ArrayList<>(Arrays.asList(id, id1))).exec();
         ids = containers.stream().map(Container::getId).collect(Collectors.toList());
 
@@ -279,10 +285,9 @@ public class DockerTest {
     }
 
     @Test
-    public void shouldTimeout() {
+    public void shouldTimeout() throws IOException {
         docker = new Docker(Docker.Shell.BASH);
         docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox",
-                        "/home/sandbox",
                 new Profile.Limits(Profile.Limits.CPU_COUNT_DEFAULT, Profile.Limits.MEMORY_DEFAULT, 1L), false));
 
         WorkingDirectory workingDirectory = docker.open("/home/sandbox");
@@ -296,6 +301,8 @@ public class DockerTest {
         Result result = docker.getResult(id);
 
         docker.removeContainer(id);
+
+        workingDirectory.close();
 
         assertNotNull(result);
         assertEquals(0, result.getExitCode());

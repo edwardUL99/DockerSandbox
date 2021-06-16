@@ -5,7 +5,6 @@
       "image": "opengl_docker",
       "container-name": "opengl_docker",
       "user": "sandbox",
-      "working-directory": "/home/sandbox",
       "limits": {
         "cpuCount": 1,
         "memory": 64,
@@ -18,7 +17,6 @@
       "image": "gcc-docker",
       "container-name": "gcc-docker",
       "user": "root",
-      "working-directory": "/home/sandbox",
       "networkDisabled": true
     },
     {
@@ -26,7 +24,6 @@
       "image": "gcc-docker",
       "container-name": "gcc-docker",
       "user": "sandbox",
-      "working-directory": "/home/sandbox",
       "networkDisabled": true
     },
     {
@@ -34,7 +31,6 @@
       "image": "java-docker",
       "container-name": "java-docker",
       "user": "root",
-      "working-directory": "/home/sandbox",
       "networkDisabled": true
     },
     {
@@ -42,7 +38,6 @@
       "image": "java-docker",
       "container-name": "java-docker",
       "user": "sandbox",
-      "working-directory": "/home/sandbox",
       "networkDisabled": true
     }
   ],
