@@ -39,8 +39,26 @@ public class Result {
     private final boolean outOfMemory;
     /**
      * A flag to indicate if the program timed out
+     * @since 0.2.0
      */
     private final boolean timedOut;
+    /**
+     * The duration in seconds of how long the container ran for
+     * @since 0.4.0
+     */
+    private final Double duration;
+
+    /**
+     * Construct a Result object with the provided parameters with duration as default Nan
+     * @param exitCode the exit code of the docker container
+     * @param stdout the standard output stream as a String
+     * @param stderr the standard error stream as a String
+     * @param outOfMemory true if the container ran out of memory
+     * @param timedOut true if the program timed out
+     */
+    public Result(int exitCode, String stdout, String stderr, boolean outOfMemory, boolean timedOut) {
+        this(exitCode, stdout, stderr, outOfMemory, timedOut, Double.NaN);
+    }
 
     /**
      * Construct a Result object with the provided parameters
@@ -49,13 +67,16 @@ public class Result {
      * @param stderr the standard error stream as a String
      * @param outOfMemory true if the container ran out of memory
      * @param timedOut true if the program timed out
+     * @param duration the duration of how long the container ran for
+     * @since 0.4.0
      */
-    public Result(int exitCode, String stdout, String stderr, boolean outOfMemory, boolean timedOut) {
+    public Result(int exitCode, String stdout, String stderr, boolean outOfMemory, boolean timedOut, Double duration) {
         this.exitCode = exitCode;
         this.stdout = stdout;
         this.stderr = stderr;
         this.outOfMemory = outOfMemory;
         this.timedOut = timedOut;
+        this.duration = duration;
     }
 
     /**
@@ -94,8 +115,46 @@ public class Result {
      * Determine whether the process this Result is produced from had timed out.
      * If this returns true, {@link #getStdout()} or {@link #getStderr()} may be empty or not complete
      * @return true if timed out, false if not
+     * @since 0.2.0
      */
     public boolean isTimedOut() {
         return timedOut;
+    }
+
+    /**
+     * Retrieve the duration of how long this result took to be produced (i.e. how long the container ran for)
+     * @return duration of execution
+     * @since 0.4.0
+     */
+    public Double getDuration() {
+        return duration;
+    }
+
+    /**
+     * Returns a string representation of the object. In general, the
+     * {@code toString} method returns a string that
+     * "textually represents" this object. The result should
+     * be a concise but informative representation that is easy for a
+     * person to read.
+     * It is recommended that all subclasses override this method.
+     * <p>
+     * The {@code toString} method for class {@code Object}
+     * returns a string consisting of the name of the class of which the
+     * object is an instance, the at-sign character `{@code @}', and
+     * the unsigned hexadecimal representation of the hash code of the
+     * object. In other words, this method returns a string equal to the
+     * value of:
+     * <blockquote>
+     * <pre>
+     * getClass().getName() + '@' + Integer.toHexString(hashCode())
+     * </pre></blockquote>
+     *
+     * @return a string representation of the object.
+     * @since 0.4.0
+     */
+    @Override
+    public String toString() {
+        return String.format("Exit Code:\n%d\n\nStdout:\n%s\nStderr:\n%s\nOOM:\n%s\n\nTimed Out:\n%s\nDuration:\n%f\n",
+                exitCode, stdout, stderr, outOfMemory, timedOut, duration);
     }
 }

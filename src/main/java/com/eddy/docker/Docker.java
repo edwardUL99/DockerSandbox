@@ -35,6 +35,9 @@ import org.json.simple.parser.ParseException;
 import java.io.*;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -72,6 +75,10 @@ public class Docker {
      * If not required, this will be null
      */
     private AttachContainerCmd attachContainerCmd;
+    /**
+     * The date time returned by docker inspect if the container has not finished/unknown
+     */
+    private static final String UNKNOWN_DATE = "0001-01-01T00:00:00Z";
 
     /**
      * Construct a docker container with default Host being "unix:///var/run/docker.sock" and no profiles loaded. Profiles
@@ -380,6 +387,28 @@ public class Docker {
     }
 
     /**
+     * Calculate the duration of execution from the state provided.
+     * If it cannot be determined, Double.NaN is returned.
+     * @param state the state to retrieve the times from
+     * @return duration in seconds of execution
+     */
+    private Double getDuration(InspectContainerResponse.ContainerState state) {
+        String startStr = state.getStartedAt();
+        String endStr = state.getFinishedAt();
+
+        if ((startStr == null || startStr.equals(UNKNOWN_DATE)) || (endStr == null || endStr.equals(UNKNOWN_DATE)))
+            return Double.NaN;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+        LocalDateTime started = LocalDateTime.parse(startStr, formatter);
+        LocalDateTime finished = LocalDateTime.parse(endStr, formatter);
+
+        Duration duration = Duration.between(started, finished);
+
+        return duration.toMillis() / 1000.00;
+    }
+
+    /**
      * Retrieve the result of a started docker container. I.e., {@link #startContainer(String)} needs to be called first.
      * {@link #removeContainer(String)} should be called afterwards
      * @param containerId the ID of the container to start
@@ -387,21 +416,28 @@ public class Docker {
      */
     public Result getResult(String containerId) {
         try {
-            AtomicBoolean timedOut = new AtomicBoolean(false);
-            String[] output = getOutput(containerId, timedOut);
+            AtomicBoolean timedOutRef = new AtomicBoolean(false);
+            String[] output = getOutput(containerId, timedOutRef);
+
+            boolean timedOut = timedOutRef.get();
+
+            if (timedOut)
+                dockerClient.stopContainerCmd(containerId).exec();
+
             InspectContainerResponse inspected = inspect(containerId);
             InspectContainerResponse.ContainerState state = inspected.getState();
+
+            Double duration = getDuration(state);
 
             Long exit_code_long = state.getExitCodeLong();
             int exit_code = Integer.MIN_VALUE;
 
-            if (exit_code_long != null) {
+            if (exit_code_long != null)
                 exit_code = exit_code_long.intValue();
-            }
 
             Boolean oom = state.getOOMKilled();
 
-            return new Result(exit_code, output[0], output[1], oom != null && oom, timedOut.get());
+            return new Result(exit_code, output[0], output[1], oom != null && oom, timedOut, duration);
         } catch (InterruptedException ex) {
             throw new DockerException("An exception occurred waiting for the container to complete", ex);
         }
