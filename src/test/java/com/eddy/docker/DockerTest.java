@@ -311,4 +311,34 @@ public class DockerTest {
         assertFalse(result.isOutOfMemory());
         assertTrue(result.isTimedOut());
     }
+
+    @Test
+    public void shouldShowExecutionTime() throws IOException {
+        docker = new Docker(Docker.Shell.BASH);
+        docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox",
+                new Profile.Limits(Profile.Limits.CPU_COUNT_DEFAULT, Profile.Limits.MEMORY_DEFAULT, 3L), false));
+
+        WorkingDirectory workingDirectory = docker.open("/home/sandbox");
+
+        String id = docker.createContainer("gcc_run", new Docker.Command("sleep 2"),
+                new Docker.Bindings(), workingDirectory, null, new ArrayList<>());
+
+        assertNotNull(id);
+
+        docker.startContainer(id);
+        Result result = docker.getResult(id);
+        Double duration = result.getDuration();
+
+        docker.removeContainer(id);
+
+        workingDirectory.close();
+
+        assertNotNull(result);
+        assertEquals(0, result.getExitCode());
+        assertEquals("", result.getStdout().trim());
+        assertEquals("", result.getStderr().trim());
+        assertFalse(result.isOutOfMemory());
+        assertFalse(result.isTimedOut());
+        assertTrue(duration >= 2.0 && duration <= 3); // duration should be between 2 and 3 seconds if the process slept for 2 seconds
+    }
 }

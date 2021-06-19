@@ -23,6 +23,7 @@ import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
+import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.eddy.docker.components.Profile;
 import com.eddy.docker.components.Result;
@@ -79,6 +80,10 @@ public class Docker {
      * The date time returned by docker inspect if the container has not finished/unknown
      */
     private static final String UNKNOWN_DATE = "0001-01-01T00:00:00Z";
+    /**
+     * The socket for the unix docker container
+     */
+    private static final String UNIX_DOCKER_SOCK = "unix:///var/run/docker.sock";
 
     /**
      * Construct a docker container with default Host being "unix:///var/run/docker.sock" and no profiles loaded. Profiles
@@ -86,12 +91,7 @@ public class Docker {
      * @param shell the shell the docker containers should run under
      */
     public Docker(Shell shell) {
-        dockerClient = DockerClientBuilder.getInstance()
-                .withDockerHttpClient(new ApacheDockerHttpClient.Builder()
-                    .dockerHost(URI.create("unix:///var/run/docker.sock"))
-                        .build()
-                )
-                .build();
+        configure(null, UNIX_DOCKER_SOCK);
         this.shell = shell;
     }
 
@@ -158,7 +158,7 @@ public class Docker {
         if (!shellFound)
             throw new IllegalArgumentException("Shell: " + shell + " provided in " + filename + " not recognised");
 
-        String dockerHost = (String)json.getOrDefault("docker_host", "unix:///var/run/docker.sock");
+        String dockerHost = (String)json.getOrDefault("docker_host", UNIX_DOCKER_SOCK);
 
         DefaultDockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withDockerHost(dockerHost)
@@ -166,12 +166,26 @@ public class Docker {
                 .withDockerTlsVerify((String)json.getOrDefault("docker_tls_verify", DefaultDockerClientConfig.DOCKER_TLS_VERIFY))
                 .build();
 
-        dockerClient = DockerClientBuilder.getInstance(config)
-                .withDockerHttpClient(new ApacheDockerHttpClient.Builder()
-                        .dockerHost(URI.create(dockerHost))
-                        .build()
-                )
-                .build();
+        configure(config, dockerHost);
+    }
+
+    /**
+     * Configures the DockerClient
+     * @param config config to pass into the docker client, leave null if not needed
+     * @param host the hostname of the Docker container
+     * @since 0.4.1
+     */
+    private void configure(DockerClientConfig config, String host) {
+        PrintStream err = System.err;
+        PrintStream noOp = new PrintStream(OutputStream.nullOutputStream());
+        System.setErr(new PrintStream(noOp)); // avoid SLF4J warnings
+        DockerClientBuilder builder = config == null ? DockerClientBuilder.getInstance():DockerClientBuilder.getInstance(config);
+        dockerClient = builder.withDockerHttpClient(new ApacheDockerHttpClient.Builder()
+                .dockerHost(URI.create(host))
+                .build()
+        ).build();
+        System.setErr(err);
+        noOp.close();
     }
 
     /**
