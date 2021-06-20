@@ -141,3 +141,6 @@ The only class intended to be interacted with directly with in using this librar
 `api` package being used by the `DockerSandbox` class. `DockerSandbox` takes and returns objects of types defined in the `api` package,
 but only these objects should be used in the context of `DockerSandbox`. The `api` package is **not** stable, but the 
 `DockerSandbox` class will *always* reflect changes made to the `api` package, so it is relatively safer to use.
+
+This means, if you were using releases before 0.5.0, after upgrading, you will have to fix package imports to reflect the
+new `api` package
