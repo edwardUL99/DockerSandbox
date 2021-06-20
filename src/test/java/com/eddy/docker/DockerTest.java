@@ -19,6 +19,7 @@ package com.eddy.docker;
 import static org.junit.Assert.*;
 
 import com.eddy.docker.api.Docker;
+import com.eddy.docker.api.DockerBuilder;
 import com.eddy.docker.api.Utils;
 import com.eddy.docker.api.components.Profile;
 import com.eddy.docker.api.components.Result;
@@ -46,7 +47,7 @@ public class DockerTest {
     @Test
     public void shouldConfigureWithShell() {
         Docker.Shell shell = Docker.Shell.SH;
-        docker = (DefaultDocker)new Docker.Builder().withShell(shell).build();//new DefaultDocker(shell);
+        docker = (DefaultDocker)new DockerBuilder().withShell(shell).build();//new DefaultDocker(shell);
 
         assertNotNull(docker.getDockerClient());
         assertEquals(shell, docker.getShell());
@@ -68,7 +69,7 @@ public class DockerTest {
         JSONObject json = loadJSON();
         List<Profile> profiles = Utils.profilesFromJSON((JSONArray)json.getOrDefault("profiles", new JSONArray()));
 
-        docker = (DefaultDocker)new Docker.Builder().withJSONPath("test-files/profiles.json").build();//new DefaultDocker("test-files/profiles.json");
+        docker = (DefaultDocker)new DockerBuilder().withJSONPath("test-files/profiles.json").build();//new DefaultDocker("test-files/profiles.json");
 
         List<Profile> dockerProfiles = docker.getProfiles();
 
@@ -83,7 +84,7 @@ public class DockerTest {
 
     @Test
     public void shouldDoContainerRunNoStdin() throws IOException {
-        docker = (DefaultDocker) new Docker.Builder().withShell(Docker.Shell.BASH).build();
+        docker = (DefaultDocker) new DockerBuilder().withShell(Docker.Shell.BASH).build();
         docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox"),
                 new Profile("gcc_compile", "gcc-docker", "gcc-docker", "root"));
 
@@ -131,7 +132,7 @@ public class DockerTest {
 
     @Test
     public void shouldDoContainerRunStdin() throws IOException {
-        docker = (DefaultDocker) new Docker.Builder().withShell(Docker.Shell.BASH).build();
+        docker = (DefaultDocker) new DockerBuilder().withShell(Docker.Shell.BASH).build();
         docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox"),
                 new Profile("gcc_compile", "gcc-docker", "gcc-docker", "root"));
 
@@ -180,7 +181,7 @@ public class DockerTest {
     @Test
     public void shouldDoContainerStdinCatCommand() throws IOException {
         // cat is a special case as it doesn't terminate until it receives Ctrl-D (character 4)
-        docker = (DefaultDocker) new Docker.Builder().withShell(Docker.Shell.BASH).build();
+        docker = (DefaultDocker) new DockerBuilder().withShell(Docker.Shell.BASH).build();
         docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox"),
                 new Profile("gcc_compile", "gcc-docker", "gcc-docker", "root"));
 
@@ -208,7 +209,7 @@ public class DockerTest {
 
     @Test
     public void shouldDoStdinJava() throws IOException {
-        docker = (DefaultDocker) new Docker.Builder().withShell(Docker.Shell.BASH).build();
+        docker = (DefaultDocker) new DockerBuilder().withShell(Docker.Shell.BASH).build();
         docker.addProfiles(new Profile("java_run", "java-docker", "java-docker", "sandbox"),
                 new Profile("java_compile", "java-docker", "java-docker", "root"));
 
@@ -256,7 +257,7 @@ public class DockerTest {
 
     @Test
     public void shouldCleanUpUnRemovedContainers() throws IOException {
-        docker = (DefaultDocker) new Docker.Builder().withShell(Docker.Shell.BASH).build();
+        docker = (DefaultDocker) new DockerBuilder().withShell(Docker.Shell.BASH).build();
         docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox"),
                 new Profile("gcc_compile", "gcc-docker", "gcc-docker1", "root"));
 
@@ -287,7 +288,7 @@ public class DockerTest {
 
     @Test
     public void shouldTimeout() throws IOException {
-        docker = (DefaultDocker) new Docker.Builder().withShell(Docker.Shell.BASH).build();
+        docker = (DefaultDocker) new DockerBuilder().withShell(Docker.Shell.BASH).build();
         docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox",
                 new Profile.Limits(Profile.Limits.CPU_COUNT_DEFAULT, Profile.Limits.MEMORY_DEFAULT, 1L), false));
 
@@ -315,7 +316,7 @@ public class DockerTest {
 
     @Test
     public void shouldShowExecutionTime() throws IOException {
-        docker = (DefaultDocker) new Docker.Builder().withShell(Docker.Shell.BASH).build();
+        docker = (DefaultDocker) new DockerBuilder().withShell(Docker.Shell.BASH).build();
         docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox",
                 new Profile.Limits(Profile.Limits.CPU_COUNT_DEFAULT, Profile.Limits.MEMORY_DEFAULT, 3L), false));
 

@@ -17,6 +17,7 @@
 package com.eddy.docker.api.components;
 
 import com.eddy.docker.api.Docker;
+import com.eddy.docker.api.DockerBuilder;
 
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +26,7 @@ import java.util.Objects;
  * This class represents an execution profile for a docker container to be spun up from. One docker image can have multiple
  * profiles. Profiles are used to configure how to docker container is created based off the profile's image name.
  *
- * Profiles can be configured programmatically or parsed in from a JSON file. {@link Docker.Builder#withJSONPath(String)}
+ * Profiles can be configured programmatically or parsed in from a JSON file. {@link DockerBuilder#withJSONPath(String)}
  */
 public class Profile {
     /**

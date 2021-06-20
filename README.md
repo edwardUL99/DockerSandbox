@@ -97,7 +97,6 @@ file contains the following properties:
       "image": "image_name[:version]",
       "container-name": "name-of-created-container",
       "user": "sandbox",
-      "working-directory": "/home/sandbox",
       "limits": {
         "cpuCount": 4,
         "memory": 64,

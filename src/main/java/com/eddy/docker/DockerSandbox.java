@@ -17,6 +17,7 @@
 package com.eddy.docker;
 
 import com.eddy.docker.api.Docker;
+import com.eddy.docker.api.DockerBuilder;
 import com.eddy.docker.api.components.Profile;
 import com.eddy.docker.api.components.Result;
 import com.eddy.docker.api.components.WorkingDirectory;
@@ -93,12 +94,12 @@ public final class DockerSandbox {
 
     /**
      * Configure the system (and the DefaultDocker client) using the provided shell and profiles.
-     * See {@link Docker.Builder#withShell(Docker.Shell)} and {@link Docker.Builder#withProfiles(Profile...)} for how it is configured using this method
+     * See {@link DockerBuilder#withShell(Docker.Shell)} and {@link DockerBuilder#withProfiles(Profile...)} for how it is configured using this method
      * @param shell the shell the docker containers should use
      * @param profiles the profiles to be loaded in
      */
     public static void configure(Docker.Shell shell, Profile...profiles) {
-        docker = new Docker.Builder()
+        docker = new DockerBuilder()
                 .withShell(shell)
                 .withProfiles(profiles)
                 .build();
@@ -108,11 +109,11 @@ public final class DockerSandbox {
 
     /**
      * Configures the system (and the DefaultDocker client) using the JSON file.
-     * See {@link Docker.Builder#withJSONPath(String)} for info on JSON configuration
+     * See {@link DockerBuilder#withJSONPath(String)} for info on JSON configuration
      * @param JSONFile the path to the JSON file to load profiles from
      */
     public static void configure(String JSONFile) {
-        docker = new Docker.Builder()
+        docker = new DockerBuilder()
                 .withJSONPath(JSONFile)
                 .build();
     }
