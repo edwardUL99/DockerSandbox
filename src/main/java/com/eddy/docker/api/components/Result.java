@@ -154,7 +154,7 @@ public class Result {
      */
     @Override
     public String toString() {
-        return String.format("Exit Code:\n%d\n\nStdout:\n%s\nStderr:\n%s\nOOM:\n%s\n\nTimed Out:\n%s\nDuration:\n%f\n",
+        return String.format("Exit Code:\n%d\n\nStdout:\n%s\nStderr:\n%s\nOOM:\n%s\n\nTimed Out:\n%s\n\nDuration:\n%f\n",
                 exitCode, stdout, stderr, outOfMemory, timedOut, duration);
     }
 }
