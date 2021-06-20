@@ -39,15 +39,15 @@ The resulting JAR file will be output to the target directory
 The main class to interact with the library is com.eddy.docker.DockerSandbox. The following is an example of how to run
 and compile a C program:
 ```java
-import com.eddy.docker.Docker;
+import com.eddy.docker.api.Docker;
 import com.eddy.docker.DockerSandbox;
-import com.eddy.docker.components.Result;
-import com.eddy.docker.components.WorkingDirectory;
+import com.eddy.docker.api.components.Result;
+import com.eddy.docker.api.components.WorkingDirectory;
 
 public class Example {
     public static void main(String[] args) {
         DockerSandbox.configure("profiles.json"); // see profiles.json in the root of the project for the example file
-        // Or you can do DockerSandbox.configure(Docker.Shell.SH or Docker.Shell.BASH, profiles)
+        // Or you can do DockerSandbox.configure(DefaultDocker.Shell.SH or DefaultDocker.Shell.BASH, profiles)
         DockerSandbox.start("/home/sandbox");
         try {
             Docker.Bindings bindings = new Docker.Bindings();
@@ -131,5 +131,13 @@ Profile profile = new Profile("profile_name", "image_name[:version]", "name-of-c
 DockerSandbox.configure(Docker.Shell.BASH, profile);
 ```
 
+## Release Information
+
 **Note:** As of release 0.3.0, the working-directory parameter in Profile has been removed.
 Instead, the working directory passed into `DockerSandbox.start(String workingDirectory)` is used.
+
+**Note:** As of release 0.5.0, the library consists of a single top-level class `com.eddy.docker.DockerSandbox` and a package `api`.
+The only class intended to be interacted with directly with in using this library is the `DockerSandbox` class, with the
+`api` package being used by the `DockerSandbox` class. `DockerSandbox` takes and returns objects of types defined in the `api` package,
+but only these objects should be used in the context of `DockerSandbox`. The `api` package is **not** stable, but the 
+`DockerSandbox` class will *always* reflect changes made to the `api` package, so it is relatively safer to use.

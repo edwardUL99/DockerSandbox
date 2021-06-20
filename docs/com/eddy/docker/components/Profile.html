@@ -116,7 +116,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.eddy.docker.components</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.eddy.docker.api.components</a></div>
 <h2 title="Class Profile" class="title">Class Profile</h2>
 </div>
 <div class="contentContainer">
@@ -124,7 +124,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li>com.eddy.docker.components.Profile</li>
+<li>com.eddy.docker.api.components.Profile</li>
 </ul>
 </li>
 </ul>
@@ -160,7 +160,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Profile.Limits.html" title="class in com.eddy.docker.components">Profile.Limits</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Profile.Limits.html" title="class in com.eddy.docker.api.components">Profile.Limits</a></span></code></th>
 <td class="colLast">
 <div class="block">This class represents limits that a created docker container must adhere to</div>
 </td>
@@ -192,11 +192,11 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.eddy.docker.components.Profile.Limits,boolean)">Profile</a></span>&#8203;(java.lang.String&nbsp;profileName,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.eddy.docker.api.components.Profile.Limits,boolean)">Profile</a></span>&#8203;(java.lang.String&nbsp;profileName,
        java.lang.String&nbsp;imageName,
        java.lang.String&nbsp;containerName,
        java.lang.String&nbsp;user,
-       <a href="Profile.Limits.html" title="class in com.eddy.docker.components">Profile.Limits</a>&nbsp;limits,
+       <a href="Profile.Limits.html" title="class in com.eddy.docker.api.components">Profile.Limits</a>&nbsp;limits,
        boolean&nbsp;networkDisabled)</code></th>
 <td class="colLast">
 <div class="block">Construct a profile with the provided parameters and with default limits</div>
@@ -242,7 +242,7 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="Profile.Limits.html" title="class in com.eddy.docker.components">Profile.Limits</a></code></td>
+<td class="colFirst"><code><a href="Profile.Limits.html" title="class in com.eddy.docker.api.components">Profile.Limits</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLimits()">getLimits</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Retrieve the limits this profile specifies for the container to adhere to</div>
@@ -320,7 +320,7 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a id="&lt;init&gt;(java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.eddy.docker.components.Profile.Limits,boolean)">
+<a id="&lt;init&gt;(java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.eddy.docker.api.components.Profile.Limits,boolean)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -330,7 +330,7 @@ extends java.lang.Object</pre>
                java.lang.String&nbsp;imageName,
                java.lang.String&nbsp;containerName,
                java.lang.String&nbsp;user,
-               <a href="Profile.Limits.html" title="class in com.eddy.docker.components">Profile.Limits</a>&nbsp;limits,
+               <a href="Profile.Limits.html" title="class in com.eddy.docker.api.components">Profile.Limits</a>&nbsp;limits,
                boolean&nbsp;networkDisabled)</pre>
 <div class="block">Construct a profile with the provided parameters and with default limits</div>
 <dl>
@@ -361,7 +361,7 @@ extends java.lang.Object</pre>
 <h4>getProfileName</h4>
 <pre class="methodSignature">public&nbsp;java.lang.String&nbsp;getProfileName()</pre>
 <div class="block">Retrieve this profile's name. The name is used as a lookup by
- <a href="../Docker.html#createContainer(java.lang.String,com.eddy.docker.Docker.Command,com.eddy.docker.Docker.Bindings,com.eddy.docker.components.WorkingDirectory,java.lang.String,java.util.List)"><code>Docker.createContainer(String, Docker.Command, Docker.Bindings, WorkingDirectory, String, List)</code></a>
+ <a href="../Docker.html#createContainer(java.lang.String,com.eddy.docker.api.Docker.Command,com.eddy.docker.api.Docker.Bindings,com.eddy.docker.api.components.WorkingDirectory,java.lang.String,java.util.List)"><code>Docker.createContainer(String, Docker.Command, Docker.Bindings, WorkingDirectory, String, List)</code></a>
  to find the profile associated with the provided profile name</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -417,7 +417,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getLimits</h4>
-<pre class="methodSignature">public&nbsp;<a href="Profile.Limits.html" title="class in com.eddy.docker.components">Profile.Limits</a>&nbsp;getLimits()</pre>
+<pre class="methodSignature">public&nbsp;<a href="Profile.Limits.html" title="class in com.eddy.docker.api.components">Profile.Limits</a>&nbsp;getLimits()</pre>
 <div class="block">Retrieve the limits this profile specifies for the container to adhere to</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>

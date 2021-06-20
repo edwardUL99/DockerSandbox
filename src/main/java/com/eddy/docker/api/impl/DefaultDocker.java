@@ -14,9 +14,14 @@
  *    limitations under the License.
  */
 
-package com.eddy.docker;
+package com.eddy.docker.api.impl;
 
-import com.eddy.docker.exceptions.DockerException;
+import com.eddy.docker.api.Docker;
+import com.eddy.docker.api.Utils;
+import com.eddy.docker.api.components.Profile;
+import com.eddy.docker.api.components.Result;
+import com.eddy.docker.api.components.WorkingDirectory;
+import com.eddy.docker.api.exceptions.DockerException;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.*;
@@ -25,9 +30,6 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
-import com.eddy.docker.components.Profile;
-import com.eddy.docker.components.Result;
-import com.eddy.docker.components.WorkingDirectory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -44,15 +46,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * This class abstracts client access to the Docker API through {@link DockerClient}.
- *
- * It provides all the necessary commands required for running sandbox docker programs.
- * It can be used as-is, but it is recommended to use the API wrapper {@link DockerSandbox} which abstracts any setup and execution
- * steps that this class requires.
+ *  This is the default implementation of the Docker client which should provide all the features required.
  */
-public class Docker {
+public class DefaultDocker implements Docker {
     /**
-     * The client this class will be using to access Docker
+     * The client this class will be using to access DefaultDocker
      */
     private DockerClient dockerClient;
     /**
@@ -90,17 +88,17 @@ public class Docker {
      * would have to be added using {@link #addProfiles(Profile...)}
      * @param shell the shell the docker containers should run under
      */
-    public Docker(Shell shell) {
+    protected DefaultDocker(Shell shell) {
         configure(null, UNIX_DOCKER_SOCK);
         this.shell = shell;
     }
 
     /**
      * Create a docker object from a JSON file specified by filename. See profiles.json for an example.
-     * The shell variable should be retrieved from here. JSON is the most configurable option over {@link #Docker(Shell)}
+     * The shell variable should be retrieved from here. JSON is the most configurable option over {@link #DefaultDocker(Shell)}
      * @param filename the name of the JSON file to load from
      */
-    public Docker(String filename) {
+    protected DefaultDocker(String filename) {
         if (filename != null) {
             try {
                 configureFromJSON(filename);
@@ -127,7 +125,7 @@ public class Docker {
     }
 
     /**
-     * Configure Docker from the JSON file
+     * Configure DefaultDocker from the JSON file
      * @param filename the name of the JSON file
      * @throws IOException if an error occurs
      * @throws ParseException if the JSON cannot be parsed
@@ -172,7 +170,7 @@ public class Docker {
     /**
      * Configures the DockerClient
      * @param config config to pass into the docker client, leave null if not needed
-     * @param host the hostname of the Docker container
+     * @param host the hostname of the DefaultDocker container
      * @since 0.4.1
      */
     private void configure(DockerClientConfig config, String host) {
@@ -192,6 +190,7 @@ public class Docker {
      * Add the list of profiles to this class. It uses {@link Profile#getProfileName()} as the lookup name
      * @param profiles the list of profiles to add
      */
+    @Override
     public void addProfiles(Profile...profiles) {
         for (Profile profile : profiles) {
             this.profiles.put(profile.getProfileName(), profile);
@@ -201,16 +200,17 @@ public class Docker {
     /**
      * Create a volume with the specified name
      * @param volumeName the name of the volume to create
-     * @return the response from the execution of the volume command
      */
-    public CreateVolumeResponse createVolume(String volumeName) {
-        return dockerClient.createVolumeCmd().withName(volumeName).exec();
+    @Override
+    public void createVolume(String volumeName) {
+        dockerClient.createVolumeCmd().withName(volumeName).exec();
     }
 
     /**
      * Remove the docker volume with the provided name
      * @param volumeName the name of the docker volume to remove
      */
+    @Override
     public void removeVolume(String volumeName) {
         dockerClient.removeVolumeCmd(volumeName).exec();
     }
@@ -221,6 +221,7 @@ public class Docker {
      * @param remotePath the path to the directory the tar should be extracted on
      * @param tarStream the input stream to the tar. This is not a TarArchiveInputStream since tar decompression is done by DockerClient
      */
+    @Override
     public void copyTarToContainer(String containerId, String remotePath, FileInputStream tarStream) {
         dockerClient.copyArchiveToContainerCmd(containerId)
                 .withTarInputStream(tarStream)
@@ -283,6 +284,7 @@ public class Docker {
      * @param envs environment variables to be set inside the docker container
      * @return the ID of the created container
      */
+    @Override
     public String createContainer(String profileName, Command command, Bindings bindings,
                                                    WorkingDirectory workingDirectory, String stdin, List<String> envs) {
         Profile profile = profiles.get(profileName);
@@ -332,6 +334,7 @@ public class Docker {
      * Start the container with the provided ID
      * @param containerId the ID of the container to start
      */
+    @Override
     public void startContainer(String containerId) {
         dockerClient.startContainerCmd(containerId).exec();
     }
@@ -341,7 +344,7 @@ public class Docker {
      * @param containerId the ID of the container to inspect
      * @return the response of the inspection command
      */
-    public InspectContainerResponse inspect(String containerId) {
+    private InspectContainerResponse inspect(String containerId) {
         return dockerClient.inspectContainerCmd(containerId).exec();
     }
 
@@ -349,6 +352,7 @@ public class Docker {
      * Remove the container with the provided container ID. This forces removal
      * @param containerId the ID of the container to remove
      */
+    @Override
     public void removeContainer(String containerId) {
         dockerClient.removeContainerCmd(containerId)
                 .withForce(true).exec();
@@ -405,6 +409,7 @@ public class Docker {
      * If it cannot be determined, Double.NaN is returned.
      * @param state the state to retrieve the times from
      * @return duration in seconds of execution
+     * @since 0.4.1
      */
     private Double getDuration(InspectContainerResponse.ContainerState state) {
         String startStr = state.getStartedAt();
@@ -428,6 +433,7 @@ public class Docker {
      * @param containerId the ID of the container to start
      * @return the result of execution
      */
+    @Override
     public Result getResult(String containerId) {
         try {
             AtomicBoolean timedOutRef = new AtomicBoolean(false);
@@ -458,40 +464,11 @@ public class Docker {
     }
 
     /**
-     * This class represents a command that can be executed on the container
-     */
-    public static class Command extends ArrayList<String> {
-        /**
-         * Construct a command object with the provided command
-         * @param command the command to execute
-         */
-        public Command(String command) {
-            this.add(command);
-        }
-    }
-
-    /**
-     * This class represents a list of bindings for volumes on the docker container and host machine.
-     * A binding is defined as a String in the same way you would define one on the command line:
-     * "/path/on/local":"/path/on/docker"
-     */
-    public static class Bindings extends ArrayList<String> {
-        /**
-         * Add a binding to the current bindings
-         * @param binding the binding to add
-         * @return this so you can chain the creation
-         */
-        public Bindings addBinding(String binding) {
-            add(binding);
-            return this;
-        }
-    }
-
-    /**
      * This method instantiates a WorkingDirectory object, opens it and then returns it.
      * @param workingDirectory the path to mount the WorkingDirectory onto
      * @return the WorkingDirectory object to use for containers
      */
+    @Override
     public WorkingDirectory open(String workingDirectory) {
         WorkingDirectory workingDirectory1 = new WorkingDirectoryImpl(workingDirectory);
         workingDirectory1.open();
@@ -502,7 +479,7 @@ public class Docker {
      * Retrieve the DockerClient this class is using
      * @return the docker client the class is using
      */
-    protected DockerClient getDockerClient() {
+    public DockerClient getDockerClient() {
         return dockerClient;
     }
 
@@ -510,6 +487,7 @@ public class Docker {
      * Retrieve the shell that the client has been configured with
      * @return the shell the client is configured to use
      */
+    @Override
     public Shell getShell() {
         return shell;
     }
@@ -518,6 +496,7 @@ public class Docker {
      * Get the profiles that this client is configured with
      * @return profiles contained by the client
      */
+    @Override
     public List<Profile> getProfiles() {
         return new ArrayList<>(profiles.values());
     }
@@ -526,6 +505,7 @@ public class Docker {
      * This method removes any containers that were running and were started by this class. This should be called if an exception
      * occurred that may result in docker containers not being removed correctly which may result in conflict name errors.
      */
+    @Override
     public void cleanupContainers() {
         List<Container> ids = dockerClient.listContainersCmd()
                 .withShowAll(true)
@@ -674,15 +654,7 @@ public class Docker {
          * @param workingDirectory the path to mount the working directory on in the container
          */
         private WorkingDirectoryImpl(String workingDirectory) {
-            super(Docker.this, workingDirectory);
+            super(DefaultDocker.this, workingDirectory);
         }
-    }
-
-    /**
-     * This enum represents shells that the Docker class supports
-     */
-    public enum Shell {
-        SH,
-        BASH
     }
 }

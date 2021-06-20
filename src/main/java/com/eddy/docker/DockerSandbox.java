@@ -16,31 +16,32 @@
 
 package com.eddy.docker;
 
-import com.eddy.docker.components.Profile;
-import com.eddy.docker.components.Result;
-import com.eddy.docker.components.WorkingDirectory;
+import com.eddy.docker.api.Docker;
+import com.eddy.docker.api.components.Profile;
+import com.eddy.docker.api.components.Result;
+import com.eddy.docker.api.components.WorkingDirectory;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class provides an "API" to abstract the classes of this module into an easy to use interface to allow commands to be
+ * This class provides access to the docker-sandbox API in the api package to abstract the classes of this module into an easy to use interface to allow commands to be
  * run in sandboxed docker containers. An example of compiling and running a c++ program is seen here: (A gcc_compile and gcc_run profile is set up
  * with a GCC image, with compile using user root and run using user sandbox. Our working directory is /home/sandbox)
  * <pre>{@code
- *     DockerSandbox.configure("profiles.json"); // or DockerSandbox.configure(Docker.Shell.BASH, gcc_compile, gcc_run)
+ *     DockerSandbox.configure("profiles.json"); // or DockerSandbox.configure(DefaultDocker.Shell.BASH, gcc_compile, gcc_run)
  *     // add environment variables with DockerSandbox.addEnvironmentVariables("VAR1=VALUE", "VAR2=VALUE");
  *     // add bindings:
- *     //   Docker.Bindings bindings = new Docker.Bindings();
+ *     //   DefaultDocker.Bindings bindings = new DefaultDocker.Bindings();
  *     //   bindings.add("/path/to/host:/path/to/remote");
  *     DockerSandbox.start()
  *
- *     Docker.Command compile_command = new Docker.Command("gcc main.c -o main");
+ *     DefaultDocker.Command compile_command = new DefaultDocker.Command("gcc main.c -o main");
  *     Result compile =
  *          DockerSandbox.run("gcc_compile", compile_command, new WorkingDirectory.UploadedFile("main.c", "/path/to/main.c"));
  *
- *     Docker.Command run_command = new Docker.Command("./main");
+ *     DefaultDocker.Command run_command = new DefaultDocker.Command("./main");
  *     Result run =
  *          DockerSandbox.run("gcc_run", run_command); // notice that this run command will be able to access the compiled main.c from the previous command
  *
@@ -49,7 +50,7 @@ import java.util.List;
  */
 public final class DockerSandbox {
     /**
-     * The Docker client this class is encapsulating
+     * The DefaultDocker client this class is encapsulating
      */
     private static Docker docker;
     /**
@@ -91,23 +92,29 @@ public final class DockerSandbox {
     };
 
     /**
-     * Configure the system (and the Docker client) using the provided shell and profiles.
-     * See {@link Docker#Docker(Docker.Shell)} and {@link Docker#addProfiles(Profile...)} for how it is configured using this method
+     * Configure the system (and the DefaultDocker client) using the provided shell and profiles.
+     * See {@link Docker.Builder#withShell(Docker.Shell)} and {@link Docker.Builder#withProfiles(Profile...)} for how it is configured using this method
      * @param shell the shell the docker containers should use
      * @param profiles the profiles to be loaded in
      */
     public static void configure(Docker.Shell shell, Profile...profiles) {
-        docker = new Docker(shell);
+        docker = new Docker.Builder()
+                .withShell(shell)
+                .withProfiles(profiles)
+                .build();
+
         docker.addProfiles(profiles);
     }
 
     /**
-     * Configures the system (and the Docker client) using the JSON file.
-     * See {@link Docker#Docker(String)} for info on JSON configuration
+     * Configures the system (and the DefaultDocker client) using the JSON file.
+     * See {@link Docker.Builder#withJSONPath(String)} for info on JSON configuration
      * @param JSONFile the path to the JSON file to load profiles from
      */
     public static void configure(String JSONFile) {
-        docker = new Docker(JSONFile);
+        docker = new Docker.Builder()
+                .withJSONPath(JSONFile)
+                .build();
     }
 
     /**
@@ -181,6 +188,7 @@ public final class DockerSandbox {
      * @param stdin the file to read the contents from and use as stdin
      * @param uploadedFiles the files to upload to the working directory if any
      * @return the result of the run call
+     * @throws IOException if the file failes to be read
      */
     public static Result run(String profile, Docker.Command command, File stdin, WorkingDirectory.UploadedFile...uploadedFiles) throws IOException {
         return run(profile, command, readFile(stdin), uploadedFiles);
@@ -188,7 +196,7 @@ public final class DockerSandbox {
 
     /**
      * Run the command with the specified profile, command and uploaded files with String stdin.
-     * {@link #configure(com.eddy.docker.Docker.Shell, Profile...)} or {@link #configure(String)} and {@link #start(String)} needs to be called first or else
+     * {@link #configure(Docker.Shell, Profile...)} or {@link #configure(String)} and {@link #start(String)} needs to be called first or else
      * an IllegalStateException will be thrown.
      *
      * @param profile the profile to use

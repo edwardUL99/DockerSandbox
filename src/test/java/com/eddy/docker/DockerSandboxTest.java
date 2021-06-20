@@ -16,9 +16,10 @@
 
 package com.eddy.docker;
 
-import com.eddy.docker.components.Profile;
-import com.eddy.docker.components.Result;
-import com.eddy.docker.components.WorkingDirectory;
+import com.eddy.docker.api.Docker;
+import com.eddy.docker.api.components.Profile;
+import com.eddy.docker.api.components.Result;
+import com.eddy.docker.api.components.WorkingDirectory;
 import org.junit.Test;
 
 import java.util.ArrayList;

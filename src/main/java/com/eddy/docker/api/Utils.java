@@ -14,9 +14,9 @@
  *    limitations under the License.
  */
 
-package com.eddy.docker;
+package com.eddy.docker.api;
 
-import com.eddy.docker.components.Profile;
+import com.eddy.docker.api.components.Profile;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 

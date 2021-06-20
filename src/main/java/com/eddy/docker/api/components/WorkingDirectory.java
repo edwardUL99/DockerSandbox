@@ -14,18 +14,16 @@
  *    limitations under the License.
  */
 
-package com.eddy.docker.components;
+package com.eddy.docker.api.components;
 
-import com.eddy.docker.Docker;
-import com.eddy.docker.exceptions.DockerException;
-import com.github.dockerjava.api.command.CreateVolumeResponse;
+import com.eddy.docker.api.Docker;
+import com.eddy.docker.api.exceptions.DockerException;
 import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.model.Volume;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
-import java.util.List;
 import java.util.UUID;
 import java.util.zip.GZIPOutputStream;
 
@@ -33,14 +31,14 @@ import java.util.zip.GZIPOutputStream;
  * The WorkingDirectory class provides an abstraction surrounding the passing of files between the host machine and the
  * docker container. It also allows files produced in one docker container to be accessed by another docker container.
  *
- * Internally, it uses a Docker volume, which provided that this is cleaned up correctly, is removed after it is no longer required.
+ * Internally, it uses a DefaultDocker volume, which provided that this is cleaned up correctly, is removed after it is no longer required.
  * It currently only allows files to be added to the docker container and not the other way around.
  *
  * The only way to instantiate this class is through {@link Docker#open(String)}.
  */
 public class WorkingDirectory implements Closeable {
     /**
-     * The Docker client that created this WorkingDirectory
+     * The DefaultDocker client that created this WorkingDirectory
      */
     private final Docker docker;
     /**
@@ -50,7 +48,7 @@ public class WorkingDirectory implements Closeable {
     /**
      * A field to check if the volume has been created or not
      */
-    private CreateVolumeResponse volumeResponse;
+    private boolean volumeOpened;
     /**
      * The working directory of where the files added are made available on the docker container
      */
@@ -88,7 +86,8 @@ public class WorkingDirectory implements Closeable {
      * This needs to be called before {@link #addFiles(String, UploadedFile...)}
      */
     public void open() {
-        volumeResponse = docker.createVolume(name);
+        docker.createVolume(name);
+        volumeOpened = true;
         closed = false;
     }
 
@@ -166,7 +165,7 @@ public class WorkingDirectory implements Closeable {
      * @param files the list of files to be uploaded
      */
     public void addFiles(String containerId, UploadedFile...files) {
-        if (closed || volumeResponse == null)
+        if (closed || !volumeOpened)
             throw new DockerException("This WorkingDirectory has not been opened or has been closed");
 
         try {
@@ -228,7 +227,7 @@ public class WorkingDirectory implements Closeable {
     public void close() throws IOException {
         try {
             docker.removeVolume(name);
-            volumeResponse = null;
+            volumeOpened = false;
             volume = null;
             closed = true;
         } catch (ConflictException ex) {

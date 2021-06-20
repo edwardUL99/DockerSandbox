@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package com.eddy.docker.exceptions;
+package com.eddy.docker.api.exceptions;
 
 /**
  * This class provides an exception for anything that may occur in the package

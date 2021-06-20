@@ -14,9 +14,9 @@
  *    limitations under the License.
  */
 
-package com.eddy.docker.components;
+package com.eddy.docker.api.components;
 
-import com.eddy.docker.Docker;
+import com.eddy.docker.api.Docker;
 
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +25,7 @@ import java.util.Objects;
  * This class represents an execution profile for a docker container to be spun up from. One docker image can have multiple
  * profiles. Profiles are used to configure how to docker container is created based off the profile's image name.
  *
- * Profiles can be configured programmatically or parsed in from a JSON file. {@link Docker#Docker(String)}
+ * Profiles can be configured programmatically or parsed in from a JSON file. {@link Docker.Builder#withJSONPath(String)}
  */
 public class Profile {
     /**
@@ -71,6 +71,7 @@ public class Profile {
      * @param containerName name of the container that will be produced from this profile
      * @param user the user to run the docker container under
      * @param limits specified limits that the produced container should follow
+     * @param networkDisabled determines whether the container has access to the network or not
      */
     public Profile(String profileName, String imageName, String containerName, String user, Limits limits,
                    boolean networkDisabled) {
