@@ -116,7 +116,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.eddy.docker.components</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.eddy.docker.api.components</a></div>
 <h2 title="Class WorkingDirectory" class="title">Class WorkingDirectory</h2>
 </div>
 <div class="contentContainer">
@@ -124,7 +124,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li>com.eddy.docker.components.WorkingDirectory</li>
+<li>io.github.edwardUL99.docker.sandbox.api.components.WorkingDirectory</li>
 </ul>
 </li>
 </ul>
@@ -168,7 +168,7 @@ implements java.io.Closeable</pre>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="WorkingDirectory.UploadedFile.html" title="class in com.eddy.docker.components">WorkingDirectory.UploadedFile</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="WorkingDirectory.UploadedFile.html" title="class in com.eddy.docker.api.components">WorkingDirectory.UploadedFile</a></span></code></th>
 <td class="colLast">
 <div class="block">This class represents a file that will be uploaded to the working directory</div>
 </td>
@@ -193,7 +193,7 @@ implements java.io.Closeable</pre>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected </code></td>
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.eddy.docker.Docker,java.lang.String)">WorkingDirectory</a></span>&#8203;(<a href="../Docker.html" title="class in com.eddy.docker">Docker</a>&nbsp;docker,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.eddy.docker.api.Docker,java.lang.String)">WorkingDirectory</a></span>&#8203;(<a href="../Docker.html" title="class in com.eddy.docker">Docker</a>&nbsp;docker,
                 java.lang.String&nbsp;workingDirectory)</code></th>
 <td class="colLast">
 <div class="block">Create a working directory instance with the provided docker client and remote working directory path</div>
@@ -219,8 +219,8 @@ implements java.io.Closeable</pre>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addFiles(java.lang.String,com.eddy.docker.components.WorkingDirectory.UploadedFile...)">addFiles</a></span>&#8203;(java.lang.String&nbsp;containerId,
-        <a href="WorkingDirectory.UploadedFile.html" title="class in com.eddy.docker.components">WorkingDirectory.UploadedFile</a>...&nbsp;files)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addFiles(java.lang.String,com.eddy.docker.api.components.WorkingDirectory.UploadedFile...)">addFiles</a></span>&#8203;(java.lang.String&nbsp;containerId,
+        <a href="WorkingDirectory.UploadedFile.html" title="class in com.eddy.docker.api.components">WorkingDirectory.UploadedFile</a>...&nbsp;files)</code></th>
 <td class="colLast">
 <div class="block">Add the list of files to the working directory for the container specified with the provided container id.</div>
 </td>
@@ -285,7 +285,7 @@ implements java.io.Closeable</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.eddy.docker.Docker,java.lang.String)">
+<a id="&lt;init&gt;(com.eddy.docker.api.Docker,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -333,7 +333,7 @@ implements java.io.Closeable</pre>
 <h4>open</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;open()</pre>
 <div class="block">Opens this working directory to make it available to add files to it.
- This needs to be called before <a href="#addFiles(java.lang.String,com.eddy.docker.components.WorkingDirectory.UploadedFile...)"><code>addFiles(String, UploadedFile...)</code></a></div>
+ This needs to be called before <a href="#addFiles(java.lang.String,com.eddy.docker.api.components.WorkingDirectory.UploadedFile...)"><code>addFiles(String, UploadedFile...)</code></a></div>
 </li>
 </ul>
 <a id="getVolume()">
@@ -350,14 +350,14 @@ implements java.io.Closeable</pre>
 </dl>
 </li>
 </ul>
-<a id="addFiles(java.lang.String,com.eddy.docker.components.WorkingDirectory.UploadedFile...)">
+<a id="addFiles(java.lang.String,com.eddy.docker.api.components.WorkingDirectory.UploadedFile...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>addFiles</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;addFiles&#8203;(java.lang.String&nbsp;containerId,
-                     <a href="WorkingDirectory.UploadedFile.html" title="class in com.eddy.docker.components">WorkingDirectory.UploadedFile</a>...&nbsp;files)</pre>
+                     <a href="WorkingDirectory.UploadedFile.html" title="class in com.eddy.docker.api.components">WorkingDirectory.UploadedFile</a>...&nbsp;files)</pre>
 <div class="block">Add the list of files to the working directory for the container specified with the provided container id.
 
  If <a href="#open()"><code>open()</code></a> has not been called or <a href="#close()"><code>close()</code></a> has been called, a DockerException will be thrown</div>
@@ -376,7 +376,7 @@ implements java.io.Closeable</pre>
 <li class="blockList">
 <h4>isClosed</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isClosed()</pre>
-<div class="block">Retrieve whether this working directory is closed and is no longer accepting files. If <a href="#addFiles(java.lang.String,com.eddy.docker.components.WorkingDirectory.UploadedFile...)"><code>addFiles(String, UploadedFile...)</code></a>
+<div class="block">Retrieve whether this working directory is closed and is no longer accepting files. If <a href="#addFiles(java.lang.String,com.eddy.docker.api.components.WorkingDirectory.UploadedFile...)"><code>addFiles(String, UploadedFile...)</code></a>
  is called when this returns false, it will throw an IllegalStateException</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>

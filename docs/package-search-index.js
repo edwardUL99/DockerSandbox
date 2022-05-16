@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"com.eddy.docker"},{"l":"com.eddy.docker.components"},{"l":"com.eddy.docker.exceptions"}]
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"com.eddy.docker"},{"l":"com.eddy.docker.api"},{"l":"com.eddy.docker.api.components"},{"l":"com.eddy.docker.api.exceptions"},{"l":"com.eddy.docker.api.impl"}]

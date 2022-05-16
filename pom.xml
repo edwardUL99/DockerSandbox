@@ -19,7 +19,7 @@
   <scm>
     <connection>https://github.com/edwardUL99/DockerSandbox.git</connection>
     <developerConnection>https://github.com/edwardUL99/DockerSandbox.git</developerConnection>
-    <tag>0.4.1</tag>
+    <tag>0.5.0-new_interface</tag> <!--TODO change to 0.5.0 when deploying release -->
     <url>https://github.com/edwardUL99/DockerSandbox.git</url>
   </scm>
   <developers>
@@ -37,7 +37,7 @@
 
   <groupId>io.github.edwardUL99</groupId>
   <artifactId>docker-sandbox</artifactId>
-  <version>0.4.1</version>
+  <version>1.0.0</version>
 
   <dependencies>
     <dependency>

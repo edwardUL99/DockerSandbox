@@ -124,7 +124,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li>com.eddy.docker.Docker</li>
+<li>io.github.edwardUL99.docker.sandbox.api.Docker</li>
 </ul>
 </li>
 </ul>
@@ -198,7 +198,7 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.eddy.docker.Docker.Shell)">Docker</a></span>&#8203;(<a href="Docker.Shell.html" title="enum in com.eddy.docker">Docker.Shell</a>&nbsp;shell)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.eddy.docker.api.Docker.Shell)">Docker</a></span>&#8203;(<a href="Docker.Shell.html" title="enum in com.eddy.docker">Docker.Shell</a>&nbsp;shell)</code></th>
 <td class="colLast">
 <div class="block">Construct a docker container with default Host being "unix:///var/run/docker.sock" and no profiles loaded.</div>
 </td>
@@ -229,7 +229,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addProfiles(com.eddy.docker.components.Profile...)">addProfiles</a></span>&#8203;(<a href="components/Profile.html" title="class in com.eddy.docker.components">Profile</a>...&nbsp;profiles)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addProfiles(com.eddy.docker.api.components.Profile...)">addProfiles</a></span>&#8203;(<a href="components/Profile.html" title="class in com.eddy.docker.api.components">Profile</a>...&nbsp;profiles)</code></th>
 <td class="colLast">
 <div class="block">Add the list of profiles to this class.</div>
 </td>
@@ -252,10 +252,10 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createContainer(java.lang.String,com.eddy.docker.Docker.Command,com.eddy.docker.Docker.Bindings,com.eddy.docker.components.WorkingDirectory,java.lang.String,java.util.List)">createContainer</a></span>&#8203;(java.lang.String&nbsp;profileName,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createContainer(java.lang.String,com.eddy.docker.api.Docker.Command,com.eddy.docker.api.Docker.Bindings,com.eddy.docker.api.components.WorkingDirectory,java.lang.String,java.util.List)">createContainer</a></span>&#8203;(java.lang.String&nbsp;profileName,
                <a href="Docker.Command.html" title="class in com.eddy.docker">Docker.Command</a>&nbsp;command,
                <a href="Docker.Bindings.html" title="class in com.eddy.docker">Docker.Bindings</a>&nbsp;bindings,
-               <a href="components/WorkingDirectory.html" title="class in com.eddy.docker.components">WorkingDirectory</a>&nbsp;workingDirectory,
+               <a href="components/WorkingDirectory.html" title="class in com.eddy.docker.api.components">WorkingDirectory</a>&nbsp;workingDirectory,
                java.lang.String&nbsp;stdin,
                java.util.List&lt;java.lang.String&gt;&nbsp;envs)</code></th>
 <td class="colLast">
@@ -277,14 +277,14 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>java.util.List&lt;<a href="components/Profile.html" title="class in com.eddy.docker.components">Profile</a>&gt;</code></td>
+<td class="colFirst"><code>java.util.List&lt;<a href="components/Profile.html" title="class in com.eddy.docker.api.components">Profile</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getProfiles()">getProfiles</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Get the profiles that this client is configured with</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="components/Result.html" title="class in com.eddy.docker.components">Result</a></code></td>
+<td class="colFirst"><code><a href="components/Result.html" title="class in com.eddy.docker.api.components">Result</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getResult(java.lang.String)">getResult</a></span>&#8203;(java.lang.String&nbsp;containerId)</code></th>
 <td class="colLast">
 <div class="block">Retrieve the result of a started docker container.</div>
@@ -305,7 +305,7 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i10" class="altColor">
-<td class="colFirst"><code><a href="components/WorkingDirectory.html" title="class in com.eddy.docker.components">WorkingDirectory</a></code></td>
+<td class="colFirst"><code><a href="components/WorkingDirectory.html" title="class in com.eddy.docker.api.components">WorkingDirectory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#open(java.lang.String)">open</a></span>&#8203;(java.lang.String&nbsp;workingDirectory)</code></th>
 <td class="colLast">
 <div class="block">This method instantiates a WorkingDirectory object, opens it and then returns it.</div>
@@ -356,7 +356,7 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.eddy.docker.Docker.Shell)">
+<a id="&lt;init&gt;(com.eddy.docker.api.Docker.Shell)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -364,7 +364,7 @@ extends java.lang.Object</pre>
 <h4>Docker</h4>
 <pre>public&nbsp;Docker&#8203;(<a href="Docker.Shell.html" title="enum in com.eddy.docker">Docker.Shell</a>&nbsp;shell)</pre>
 <div class="block">Construct a docker container with default Host being "unix:///var/run/docker.sock" and no profiles loaded. Profiles
- would have to be added using <a href="#addProfiles(com.eddy.docker.components.Profile...)"><code>addProfiles(Profile...)</code></a></div>
+ would have to be added using <a href="#addProfiles(com.eddy.docker.api.components.Profile...)"><code>addProfiles(Profile...)</code></a></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>shell</code> - the shell the docker containers should run under</dd>
@@ -379,7 +379,7 @@ extends java.lang.Object</pre>
 <h4>Docker</h4>
 <pre>public&nbsp;Docker&#8203;(java.lang.String&nbsp;filename)</pre>
 <div class="block">Create a docker object from a JSON file specified by filename. See profiles.json for an example.
- The shell variable should be retrieved from here. JSON is the most configurable option over <a href="#%3Cinit%3E(com.eddy.docker.Docker.Shell)"><code>Docker(Shell)</code></a></div>
+ The shell variable should be retrieved from here. JSON is the most configurable option over <a href="#%3Cinit%3E(com.eddy.docker.api.Docker.Shell)"><code>Docker(Shell)</code></a></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>filename</code> - the name of the JSON file to load from</dd>
@@ -396,13 +396,13 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="addProfiles(com.eddy.docker.components.Profile...)">
+<a id="addProfiles(com.eddy.docker.api.components.Profile...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>addProfiles</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;addProfiles&#8203;(<a href="components/Profile.html" title="class in com.eddy.docker.components">Profile</a>...&nbsp;profiles)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;addProfiles&#8203;(<a href="components/Profile.html" title="class in com.eddy.docker.api.components">Profile</a>...&nbsp;profiles)</pre>
 <div class="block">Add the list of profiles to this class. It uses <a href="components/Profile.html#getProfileName()"><code>Profile.getProfileName()</code></a> as the lookup name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -458,7 +458,7 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a id="createContainer(java.lang.String,com.eddy.docker.Docker.Command,com.eddy.docker.Docker.Bindings,com.eddy.docker.components.WorkingDirectory,java.lang.String,java.util.List)">
+<a id="createContainer(java.lang.String,com.eddy.docker.api.Docker.Command,com.eddy.docker.api.Docker.Bindings,com.eddy.docker.api.components.WorkingDirectory,java.lang.String,java.util.List)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -467,7 +467,7 @@ extends java.lang.Object</pre>
 <pre class="methodSignature">public&nbsp;java.lang.String&nbsp;createContainer&#8203;(java.lang.String&nbsp;profileName,
                                         <a href="Docker.Command.html" title="class in com.eddy.docker">Docker.Command</a>&nbsp;command,
                                         <a href="Docker.Bindings.html" title="class in com.eddy.docker">Docker.Bindings</a>&nbsp;bindings,
-                                        <a href="components/WorkingDirectory.html" title="class in com.eddy.docker.components">WorkingDirectory</a>&nbsp;workingDirectory,
+                                        <a href="components/WorkingDirectory.html" title="class in com.eddy.docker.api.components">WorkingDirectory</a>&nbsp;workingDirectory,
                                         java.lang.String&nbsp;stdin,
                                         java.util.List&lt;java.lang.String&gt;&nbsp;envs)</pre>
 <div class="block">Create a container and retrieve the ID of the created container.
@@ -537,7 +537,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getResult</h4>
-<pre class="methodSignature">public&nbsp;<a href="components/Result.html" title="class in com.eddy.docker.components">Result</a>&nbsp;getResult&#8203;(java.lang.String&nbsp;containerId)</pre>
+<pre class="methodSignature">public&nbsp;<a href="components/Result.html" title="class in com.eddy.docker.api.components">Result</a>&nbsp;getResult&#8203;(java.lang.String&nbsp;containerId)</pre>
 <div class="block">Retrieve the result of a started docker container. I.e., <a href="#startContainer(java.lang.String)"><code>startContainer(String)</code></a> needs to be called first.
  <a href="#removeContainer(java.lang.String)"><code>removeContainer(String)</code></a> should be called afterwards</div>
 <dl>
@@ -554,7 +554,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>open</h4>
-<pre class="methodSignature">public&nbsp;<a href="components/WorkingDirectory.html" title="class in com.eddy.docker.components">WorkingDirectory</a>&nbsp;open&#8203;(java.lang.String&nbsp;workingDirectory)</pre>
+<pre class="methodSignature">public&nbsp;<a href="components/WorkingDirectory.html" title="class in com.eddy.docker.api.components">WorkingDirectory</a>&nbsp;open&#8203;(java.lang.String&nbsp;workingDirectory)</pre>
 <div class="block">This method instantiates a WorkingDirectory object, opens it and then returns it.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -598,7 +598,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getProfiles</h4>
-<pre class="methodSignature">public&nbsp;java.util.List&lt;<a href="components/Profile.html" title="class in com.eddy.docker.components">Profile</a>&gt;&nbsp;getProfiles()</pre>
+<pre class="methodSignature">public&nbsp;java.util.List&lt;<a href="components/Profile.html" title="class in com.eddy.docker.api.components">Profile</a>&gt;&nbsp;getProfiles()</pre>
 <div class="block">Get the profiles that this client is configured with</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
