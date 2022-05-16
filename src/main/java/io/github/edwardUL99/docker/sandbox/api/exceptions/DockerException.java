@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package com.eddy.docker.api.exceptions;
+package io.github.edwardUL99.docker.sandbox.api.exceptions;
 
 /**
  * This class provides an exception for anything that may occur in the package

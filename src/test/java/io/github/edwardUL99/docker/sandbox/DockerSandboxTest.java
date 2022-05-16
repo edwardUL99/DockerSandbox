@@ -14,23 +14,38 @@
  *    limitations under the License.
  */
 
-package com.eddy.docker;
+package io.github.edwardUL99.docker.sandbox;
 
-import com.eddy.docker.api.Docker;
-import com.eddy.docker.api.components.Profile;
-import com.eddy.docker.api.components.Result;
-import com.eddy.docker.api.components.WorkingDirectory;
+import io.github.edwardUL99.docker.sandbox.api.Docker;
+import io.github.edwardUL99.docker.sandbox.api.DockerSandbox;
+import io.github.edwardUL99.docker.sandbox.api.components.Profile;
+import io.github.edwardUL99.docker.sandbox.api.components.Result;
+import io.github.edwardUL99.docker.sandbox.api.components.WorkingDirectory;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
 
 public class DockerSandboxTest {
+    private DockerSandbox dockerSandbox;
+
+    private void init() {
+        dockerSandbox = DockerSandbox.builder()
+                .withShellProfiles(Docker.Shell.BASH, new Profile("java_run", "java-docker", "java-docker", "sandbox"),
+                        new Profile("java_compile", "java-docker", "java-docker", "root"),
+                        new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox"),
+                        new Profile("gcc_compile", "gcc-docker", "gcc-docker", "root"))
+                .withEnvironmentVariables("VAR1=VALUE1", "VAR2=VALUE2", "VAR3=VALUE3")
+                .build();
+
+        assertNotNull(dockerSandbox.getDocker());
+        assertNotNull(dockerSandbox.getBindings());
+        assertEquals(List.of("VAR1=VALUE1", "VAR2=VALUE2", "VAR3=VALUE3"), dockerSandbox.getEnvs());
+    }
 
     private void testCLangCompile() {
-        Result result = DockerSandbox.run("gcc_compile", new Docker.Command("gcc main.c -o main"),
+        Result result = dockerSandbox.run("gcc_compile", new Docker.Command("gcc main.c -o main"),
                 new WorkingDirectory.UploadedFile("test-files/main.c"));
 
         assertNotNull(result);
@@ -41,7 +56,7 @@ public class DockerSandboxTest {
     }
 
     private void testCRun() {
-        Result result = DockerSandbox.run("gcc_run", new Docker.Command("./main"));
+        Result result = dockerSandbox.run("gcc_run", new Docker.Command("./main"));
         assertNotNull(result);
         assertEquals(0, result.getExitCode());
         assertEquals("Hello", result.getStdout().trim());
@@ -50,7 +65,7 @@ public class DockerSandboxTest {
     }
 
     private void testCplusCompile() {
-        Result result = DockerSandbox.run("gcc_compile", new Docker.Command("g++ main-stdin.cpp -o main"),
+        Result result = dockerSandbox.run("gcc_compile", new Docker.Command("g++ main-stdin.cpp -o main"),
                 new WorkingDirectory.UploadedFile("test-files/main-stdin.cpp"));
 
         assertNotNull(result);
@@ -61,7 +76,7 @@ public class DockerSandboxTest {
     }
 
     private void testCplusRun() {
-        Result result = DockerSandbox.run("gcc_run", new Docker.Command("./main"), "5");
+        Result result = dockerSandbox.run("gcc_run", new Docker.Command("./main"), "5");
 
         assertNotNull(result);
         assertEquals(0, result.getExitCode());
@@ -71,7 +86,7 @@ public class DockerSandboxTest {
     }
 
     private void testCatRun() {
-        Result result = DockerSandbox.run("gcc_run", new Docker.Command("cat"), "Hello, this is a test");
+        Result result = dockerSandbox.run("gcc_run", new Docker.Command("cat"), "Hello, this is a test");
 
         assertNotNull(result);
         assertEquals(0, result.getExitCode());
@@ -81,7 +96,7 @@ public class DockerSandboxTest {
     }
 
     private void testJavaCompile() {
-        Result result = DockerSandbox.run("java_compile", new Docker.Command("javac Test.java"),
+        Result result = dockerSandbox.run("java_compile", new Docker.Command("javac Test.java"),
                 new WorkingDirectory.UploadedFile("test-files/Test.java"));
 
         assertNotNull(result);
@@ -92,7 +107,7 @@ public class DockerSandboxTest {
     }
 
     private void testJavaRun() {
-        Result result = DockerSandbox.run("java_run", new Docker.Command("java Test"), "This is line1\nThis is line2");
+        Result result = dockerSandbox.run("java_run", new Docker.Command("java Test"), "This is line1\nThis is line2");
 
         assertNotNull(result);
         assertEquals(0, result.getExitCode());
@@ -104,29 +119,12 @@ public class DockerSandboxTest {
     @Test
     public void shouldRunEntireFlow() {
         try {
-            DockerSandbox.configure(Docker.Shell.BASH, new Profile("java_run", "java-docker", "java-docker", "sandbox"),
-                    new Profile("java_compile", "java-docker", "java-docker", "root"),
-                    new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox"),
-                    new Profile("gcc_compile", "gcc-docker", "gcc-docker", "root"));
-
-            assertNotNull(DockerSandbox.getDocker());
-
-            DockerSandbox.setBindings(new Docker.Bindings());
-            assertNotNull(DockerSandbox.getBindings());
-
-            List<String> envs = new ArrayList<>();
-            envs.add("VAR1=VALUE1");
-            envs.add("VAR2=VALUE2");
-            envs.add("VAR3=VALUE3");
-            String[] envsArr = new String[envs.size()];
-
-            DockerSandbox.addEnvironmentVariables(envs.toArray(envsArr));
-            assertEquals(envs, DockerSandbox.getEnvs());
+            init();
 
             try {
-                assertNull(DockerSandbox.getWorkingDirectory());
-                DockerSandbox.start("/home/sandbox");
-                assertNotNull(DockerSandbox.getWorkingDirectory());
+                assertNull(dockerSandbox.getWorkingDirectory());
+                dockerSandbox.start("/home/sandbox");
+                assertNotNull(dockerSandbox.getWorkingDirectory());
 
                 testCLangCompile();
                 testCRun();
@@ -136,12 +134,12 @@ public class DockerSandboxTest {
                 testJavaCompile();
                 testJavaRun();
 
-                DockerSandbox.finish();
-                assertNull(DockerSandbox.getWorkingDirectory());
-                assertEquals(0, DockerSandbox.getEnvs().size());
-                assertNull(DockerSandbox.getBindings());
+                dockerSandbox.finish();
+                assertNull(dockerSandbox.getWorkingDirectory());
+                assertEquals(0, dockerSandbox.getEnvs().size());
+                assertNull(dockerSandbox.getBindings());
             } catch (Exception ex) {
-                DockerSandbox.onException();
+                dockerSandbox.cleanup();
             }
         } catch (Exception ex) {
             fail("An exception occurred doing the workflow: " + ex.getMessage());

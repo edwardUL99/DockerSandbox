@@ -1,7 +1,7 @@
-package com.eddy.docker.api;
+package io.github.edwardUL99.docker.sandbox.api;
 
-import com.eddy.docker.api.components.Profile;
-import com.eddy.docker.api.impl.DefaultDocker;
+import io.github.edwardUL99.docker.sandbox.api.components.Profile;
+import io.github.edwardUL99.docker.sandbox.api.impl.DefaultDocker;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +24,10 @@ public class DockerBuilder {
      * The path to the JSON file being used by the builder
      */
     private String jsonPath = "";
+    /**
+     * The host of the docker socket
+     */
+    private String host;
 
     /**
      * Build the Docker client with the specified profiles.
@@ -50,6 +54,16 @@ public class DockerBuilder {
     }
 
     /**
+     * Build the docker client with the specified docker host
+     * @param host the docker host
+     * @return this instance for chaining
+     */
+    public DockerBuilder withHost(String host) {
+        this.host = host;
+        return this;
+    }
+
+    /**
      * Build the Docker client with a path to a JSON configuration file.
      * See profiles.json for an example.
      * The shell variable should be retrieved from here. JSON is the most configurable option
@@ -71,7 +85,7 @@ public class DockerBuilder {
         if (jsonPath != null && !jsonPath.isEmpty()) {
             return new DefaultDockerImpl(jsonPath);
         } else {
-            Docker docker = new DefaultDockerImpl(shell);
+            Docker docker = (host == null) ? new DefaultDockerImpl(shell):new DefaultDockerImpl(shell, host);
 
             Profile[] profilesArr = new Profile[profiles.size()];
             docker.addProfiles(profiles.toArray(profilesArr));
@@ -85,12 +99,23 @@ public class DockerBuilder {
      */
     private static class DefaultDockerImpl extends DefaultDocker {
         /**
-         * Construct a docker container with default Host being "unix:///var/run/docker.sock" and no profiles loaded. Profiles
+         * Construct a docker client with default Host being "unix:///var/run/docker.sock" and no profiles loaded. Profiles
          * would have to be added using {@link #addProfiles(Profile...)}
          * @param shell the shell the docker containers should run under
          */
         private DefaultDockerImpl(Shell shell) {
             super(shell);
+        }
+
+        /**
+         * Construct a docker client with the provided shell and host and no profiles loaded. Profiles
+         * would have to be added using {@link #addProfiles(Profile...)}
+         *
+         * @param shell the shell the docker containers should run under
+         * @param host  the host of the docker socket
+         */
+        private DefaultDockerImpl(Shell shell, String host) {
+            super(shell, host);
         }
 
         /**

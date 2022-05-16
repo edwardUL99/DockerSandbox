@@ -1,80 +1,48 @@
-/*
- * Copyright 2021 Edward Lynch-Milner
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *        http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
+package io.github.edwardUL99.docker.sandbox.api.impl;
 
-package com.eddy.docker;
+import io.github.edwardUL99.docker.sandbox.api.Docker;
+import io.github.edwardUL99.docker.sandbox.api.DockerBuilder;
+import io.github.edwardUL99.docker.sandbox.api.DockerSandbox;
+import io.github.edwardUL99.docker.sandbox.api.components.Profile;
+import io.github.edwardUL99.docker.sandbox.api.components.Result;
+import io.github.edwardUL99.docker.sandbox.api.components.WorkingDirectory;
 
-import com.eddy.docker.api.Docker;
-import com.eddy.docker.api.DockerBuilder;
-import com.eddy.docker.api.components.Profile;
-import com.eddy.docker.api.components.Result;
-import com.eddy.docker.api.components.WorkingDirectory;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class provides access to the docker-sandbox API in the api package to abstract the classes of this module into an easy to use interface to allow commands to be
- * run in sandboxed docker containers. An example of compiling and running a c++ program is seen here: (A gcc_compile and gcc_run profile is set up
- * with a GCC image, with compile using user root and run using user sandbox. Our working directory is /home/sandbox)
- * <pre>{@code
- *     DockerSandbox.configure("profiles.json"); // or DockerSandbox.configure(DefaultDocker.Shell.BASH, gcc_compile, gcc_run)
- *     // add environment variables with DockerSandbox.addEnvironmentVariables("VAR1=VALUE", "VAR2=VALUE");
- *     // add bindings:
- *     //   DefaultDocker.Bindings bindings = new DefaultDocker.Bindings();
- *     //   bindings.add("/path/to/host:/path/to/remote");
- *     DockerSandbox.start()
- *
- *     DefaultDocker.Command compile_command = new DefaultDocker.Command("gcc main.c -o main");
- *     Result compile =
- *          DockerSandbox.run("gcc_compile", compile_command, new WorkingDirectory.UploadedFile("main.c", "/path/to/main.c"));
- *
- *     DefaultDocker.Command run_command = new DefaultDocker.Command("./main");
- *     Result run =
- *          DockerSandbox.run("gcc_run", run_command); // notice that this run command will be able to access the compiled main.c from the previous command
- *
- *     To pass stdin in, you can either pass the String or a File in to use a File for stdin.
- * }</pre>
+ * Default implementation of the docker sandbox API
  */
-public final class DockerSandbox {
+public class DockerSandboxImpl implements DockerSandbox {
     /**
      * The DefaultDocker client this class is encapsulating
      */
-    private static Docker docker;
+    private Docker docker;
     /**
      * The current working directory each run call will work with
      */
-    private static WorkingDirectory workingDirectory;
+    private WorkingDirectory workingDirectory;
     /**
      * The bindings that each run call will use
      */
-    private static Docker.Bindings bindings;
+    private Docker.Bindings bindings;
     /**
      * A flag to indicate {@link #finish()} is being called by an improper shutdown
      */
-    private static boolean improperShutdown = false;
+    private boolean improperShutdown = false;
     /**
      * The environment variables that can be shared between each run call
      */
-    private static final List<String> envs = new ArrayList<>();
+    private final List<String> envs = new ArrayList<>();
     /**
      * This hook is registered when {@link #start(String)} is called to ensure cleanup if the program is terminated before a call to
      * {@link #finish()} is made
      */
-    private static final Thread shutdownHook = new Thread() {
+    private final Thread shutdownHook = new Thread() {
         /**
          * If this thread was constructed using a separate
          * {@code Runnable} run object, then that
@@ -98,7 +66,8 @@ public final class DockerSandbox {
      * @param shell the shell the docker containers should use
      * @param profiles the profiles to be loaded in
      */
-    public static void configure(Docker.Shell shell, Profile...profiles) {
+    @Override
+    public void configure(Docker.Shell shell, Profile...profiles) {
         docker = new DockerBuilder()
                 .withShell(shell)
                 .withProfiles(profiles)
@@ -108,11 +77,12 @@ public final class DockerSandbox {
     }
 
     /**
-     * Configures the system (and the DefaultDocker client) using the JSON file.
+     * Configures the system (and the Docker client) using the JSON file.
      * See {@link DockerBuilder#withJSONPath(String)} for info on JSON configuration
      * @param JSONFile the path to the JSON file to load profiles from
      */
-    public static void configure(String JSONFile) {
+    @Override
+    public void configure(String JSONFile) {
         docker = new DockerBuilder()
                 .withJSONPath(JSONFile)
                 .build();
@@ -122,22 +92,24 @@ public final class DockerSandbox {
      * Add environment variables to be shared between each run call. They are specified in the form VARIABLE=VALUE.
      * @param envs the list of environment variables to add
      */
-    public static void addEnvironmentVariables(String...envs) {
-        DockerSandbox.envs.addAll(List.of(envs));
+    @Override
+    public void addEnvironmentVariables(String...envs) {
+        this.envs.addAll(List.of(envs));
     }
 
     /**
      * The bindings to use for each run call
      * @param bindings set of bindings to use for run calls
      */
-    public static void setBindings(Docker.Bindings bindings) {
-        DockerSandbox.bindings = bindings;
+    @Override
+    public void setBindings(Docker.Bindings bindings) {
+        this.bindings = bindings;
     }
 
     /**
      * Checks if the system has been configured correctly and throws IllegalStateException otherwise
      */
-    private static void checkConfiguration() {
+    private void checkConfiguration() {
         if (docker == null)
             throw new IllegalStateException("DockerSandbox needs to be configured first either by using configure with a list of Profiles" +
                     " or a JSON file containing profiles");
@@ -146,7 +118,7 @@ public final class DockerSandbox {
     /**
      * Checks if {@link #start(String)} has been called yet and throws IllegalStateException if not
      */
-    private static void checkStarted() {
+    private void checkStarted() {
         if (workingDirectory == null)
             throw new IllegalStateException("DockerSandbox needs to have start called first");
     }
@@ -159,7 +131,8 @@ public final class DockerSandbox {
      * @param uploadedFiles the files to upload to the working directory if any
      * @return the result of the run call
      */
-    public static Result run(String profile, Docker.Command command, WorkingDirectory.UploadedFile...uploadedFiles) {
+    @Override
+    public Result run(String profile, Docker.Command command, WorkingDirectory.UploadedFile...uploadedFiles) {
         return run(profile, command, "", uploadedFiles);
     }
 
@@ -169,7 +142,7 @@ public final class DockerSandbox {
      * @return the file contents
      * @throws IOException if an error occurs
      */
-    private static String readFile(File file) throws IOException {
+    private String readFile(File file) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             StringBuilder contents = new StringBuilder();
 
@@ -191,7 +164,8 @@ public final class DockerSandbox {
      * @return the result of the run call
      * @throws IOException if the file failes to be read
      */
-    public static Result run(String profile, Docker.Command command, File stdin, WorkingDirectory.UploadedFile...uploadedFiles) throws IOException {
+    @Override
+    public Result run(String profile, Docker.Command command, File stdin, WorkingDirectory.UploadedFile...uploadedFiles) throws IOException {
         return run(profile, command, readFile(stdin), uploadedFiles);
     }
 
@@ -206,7 +180,8 @@ public final class DockerSandbox {
      * @param uploadedFiles the files to upload to the working directory if any
      * @return the result of the run call
      */
-    public static Result run(String profile, Docker.Command command, String stdin, WorkingDirectory.UploadedFile...uploadedFiles) {
+    @Override
+    public Result run(String profile, Docker.Command command, String stdin, WorkingDirectory.UploadedFile...uploadedFiles) {
         checkConfiguration();
         checkStarted();
 
@@ -234,13 +209,14 @@ public final class DockerSandbox {
      *
      * @param workingDirectory the path of the working directory on the docker container
      */
-    public static void start(String workingDirectory) {
+    @Override
+    public void start(String workingDirectory) {
         checkConfiguration();
 
-        if (DockerSandbox.workingDirectory != null && !DockerSandbox.workingDirectory.isClosed())
+        if (this.workingDirectory != null && !this.workingDirectory.isClosed())
             throw new IllegalStateException("You must close the previous working directory before calling this one");
 
-        DockerSandbox.workingDirectory = docker.open(workingDirectory);
+        this.workingDirectory = docker.open(workingDirectory);
 
         Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
@@ -251,7 +227,8 @@ public final class DockerSandbox {
      *
      * This method removes the shutdown hook added by {@link #start(String)} if it is called normally and not by Ctrl-C
      */
-    public static void finish() {
+    @Override
+    public void finish() {
         try {
             if (workingDirectory != null)
                 workingDirectory.close();
@@ -272,7 +249,8 @@ public final class DockerSandbox {
      * Retrieve the working directory object being used
      * @return working directory
      */
-    protected static WorkingDirectory getWorkingDirectory() {
+    @Override
+    public WorkingDirectory getWorkingDirectory() {
         return workingDirectory;
     }
 
@@ -280,7 +258,8 @@ public final class DockerSandbox {
      * Retrieve the bindings being used
      * @return bindings
      */
-    protected static Docker.Bindings getBindings() {
+    @Override
+    public Docker.Bindings getBindings() {
         return bindings;
     }
 
@@ -288,7 +267,8 @@ public final class DockerSandbox {
      * Get the docker client being used
      * @return docker client
      */
-    protected static Docker getDocker() {
+    @Override
+    public Docker getDocker() {
         return docker;
     }
 
@@ -296,7 +276,8 @@ public final class DockerSandbox {
      * Get the list of environment variables being used
      * @return list of environment variables
      */
-    protected static List<String> getEnvs() {
+    @Override
+    public List<String> getEnvs() {
         return envs;
     }
 
@@ -304,7 +285,8 @@ public final class DockerSandbox {
      * This method should be called in a catch block to ensure that any created containers left behind by a run call (which
      * may have thrown the exception) are removed to avoid name conflict exceptions
      */
-    public static void onException() {
+    @Override
+    public void cleanup() {
         if (docker != null)
             docker.cleanupContainers();
     }

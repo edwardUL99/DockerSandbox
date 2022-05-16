@@ -14,14 +14,16 @@
  *    limitations under the License.
  */
 
-package com.eddy.docker.api.impl;
+package io.github.edwardUL99.docker.sandbox.api.impl;
 
-import com.eddy.docker.api.Docker;
-import com.eddy.docker.api.Utils;
-import com.eddy.docker.api.components.Profile;
-import com.eddy.docker.api.components.Result;
-import com.eddy.docker.api.components.WorkingDirectory;
-import com.eddy.docker.api.exceptions.DockerException;
+import com.github.dockerjava.api.exception.NotModifiedException;
+import io.github.edwardUL99.docker.sandbox.api.Docker;
+import io.github.edwardUL99.docker.sandbox.api.Utils;
+import io.github.edwardUL99.docker.sandbox.api.components.Binding;
+import io.github.edwardUL99.docker.sandbox.api.components.Profile;
+import io.github.edwardUL99.docker.sandbox.api.components.Result;
+import io.github.edwardUL99.docker.sandbox.api.components.WorkingDirectory;
+import io.github.edwardUL99.docker.sandbox.api.exceptions.DockerException;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.*;
@@ -84,12 +86,22 @@ public class DefaultDocker implements Docker {
     private static final String UNIX_DOCKER_SOCK = "unix:///var/run/docker.sock";
 
     /**
-     * Construct a docker container with default Host being "unix:///var/run/docker.sock" and no profiles loaded. Profiles
+     * Construct a docker client with default Host being "unix:///var/run/docker.sock" and no profiles loaded. Profiles
      * would have to be added using {@link #addProfiles(Profile...)}
      * @param shell the shell the docker containers should run under
      */
     protected DefaultDocker(Shell shell) {
-        configure(null, UNIX_DOCKER_SOCK);
+        this(shell, UNIX_DOCKER_SOCK);
+    }
+
+    /**
+     * Construct a docker client with the provided shell and host and no profiles loaded. Profiles
+     * would have to be added using {@link #addProfiles(Profile...)}
+     * @param shell the shell the docker containers should run under
+     * @param host the host of the docker socket
+     */
+    protected DefaultDocker(Shell shell, String host) {
+        configure(null, host);
         this.shell = shell;
     }
 
@@ -133,7 +145,7 @@ public class DefaultDocker implements Docker {
     @SuppressWarnings("unchecked")
     private void configureFromJSON(String filename) throws IOException, ParseException {
         JSONParser parser = new JSONParser();
-        FileReader reader = new FileReader(new File(filename));
+        FileReader reader = new FileReader(filename);
 
         JSONObject json = (JSONObject)parser.parse(reader);
         JSONArray profiles = (JSONArray)json.get("profiles");
@@ -170,7 +182,7 @@ public class DefaultDocker implements Docker {
     /**
      * Configures the DockerClient
      * @param config config to pass into the docker client, leave null if not needed
-     * @param host the hostname of the DefaultDocker container
+     * @param host the hostname of the Docker container
      * @since 0.4.1
      */
     private void configure(DockerClientConfig config, String host) {
@@ -245,8 +257,8 @@ public class DefaultDocker implements Docker {
         Bind[] bindingsArr = new Bind[bindingsSize];
         int i = 0;
 
-        for (String binding : bindings)
-            bindingsArr[i++] = Bind.parse(binding);
+        for (Binding binding : bindings)
+            bindingsArr[i++] = Bind.parse(binding.toString());
 
         String workDir = workingDirectory.getVolume().getPath();
 
@@ -289,9 +301,8 @@ public class DefaultDocker implements Docker {
                                                    WorkingDirectory workingDirectory, String stdin, List<String> envs) {
         Profile profile = profiles.get(profileName);
 
-        if (profile == null) {
+        if (profile == null)
             throw new IllegalArgumentException("The provided profileName " + profileName + " has no associated profile");
-        }
 
         boolean requiresStdin = stdin != null && !stdin.isEmpty();
 
@@ -336,7 +347,25 @@ public class DefaultDocker implements Docker {
      */
     @Override
     public void startContainer(String containerId) {
-        dockerClient.startContainerCmd(containerId).exec();
+        try {
+            dockerClient.startContainerCmd(containerId).exec();
+        } catch (NotModifiedException ignored) {
+            // already started
+        }
+    }
+
+    /**
+     * Stop the container with the given container ID
+     *
+     * @param containerId the ID of the container to stop
+     */
+    @Override
+    public void stopContainer(String containerId) {
+        try {
+            dockerClient.stopContainerCmd(containerId).exec();
+        } catch (NotModifiedException ignored) {
+            // already stopped
+        }
     }
 
     /**
@@ -442,7 +471,7 @@ public class DefaultDocker implements Docker {
             boolean timedOut = timedOutRef.get();
 
             if (timedOut)
-                dockerClient.stopContainerCmd(containerId).exec();
+                stopContainer(containerId);
 
             InspectContainerResponse inspected = inspect(containerId);
             InspectContainerResponse.ContainerState state = inspected.getState();

@@ -14,10 +14,10 @@
  *    limitations under the License.
  */
 
-package com.eddy.docker.api.components;
+package io.github.edwardUL99.docker.sandbox.api.components;
 
-import com.eddy.docker.api.Docker;
-import com.eddy.docker.api.DockerBuilder;
+import io.github.edwardUL99.docker.sandbox.api.Docker;
+import io.github.edwardUL99.docker.sandbox.api.DockerBuilder;
 
 import java.util.List;
 import java.util.Objects;

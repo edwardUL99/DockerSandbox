@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package com.eddy.docker.api.components;
+package io.github.edwardUL99.docker.sandbox.api.components;
 
 /**
  * This class represents the result of a docker execution. It contains fields like the exit code, stdout and stderr stream

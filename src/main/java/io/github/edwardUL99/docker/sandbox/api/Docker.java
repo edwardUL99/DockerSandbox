@@ -14,18 +14,16 @@
  *    limitations under the License.
  */
 
-package com.eddy.docker.api;
+package io.github.edwardUL99.docker.sandbox.api;
 
-import com.eddy.docker.DockerSandbox;
-import com.eddy.docker.api.impl.DefaultDocker;
 import com.github.dockerjava.api.DockerClient;
-import com.eddy.docker.api.components.Profile;
-import com.eddy.docker.api.components.Result;
-import com.eddy.docker.api.components.WorkingDirectory;
+import io.github.edwardUL99.docker.sandbox.api.components.Binding;
+import io.github.edwardUL99.docker.sandbox.api.components.Profile;
+import io.github.edwardUL99.docker.sandbox.api.components.Result;
+import io.github.edwardUL99.docker.sandbox.api.components.WorkingDirectory;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -91,6 +89,12 @@ public interface Docker {
     void startContainer(String containerId);
 
     /**
+     * Stop the container with the given container ID
+     * @param containerId the ID of the container to stop
+     */
+    void stopContainer(String containerId);
+
+    /**
      * Remove the container with the provided container ID. This forces removal
      * @param containerId the ID of the container to remove
      */
@@ -122,13 +126,22 @@ public interface Docker {
      * A binding is defined as a String in the same way you would define one on the command line:
      * "/path/on/local":"/path/on/docker"
      */
-    class Bindings extends ArrayList<String> {
+    class Bindings extends ArrayList<Binding> {
         /**
          * Add a binding to the current bindings
          * @param binding the binding to add
          * @return this so you can chain the creation
          */
         public Bindings addBinding(String binding) {
+            return addBinding(Binding.fromString(binding));
+        }
+
+        /**
+         * Add the binding object
+         * @param binding the object to add
+         * @return instance of this to chain
+         */
+        public Bindings addBinding(Binding binding) {
             add(binding);
             return this;
         }

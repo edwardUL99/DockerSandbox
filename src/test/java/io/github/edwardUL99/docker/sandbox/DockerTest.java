@@ -14,23 +14,24 @@
  *    limitations under the License.
  */
 
-package com.eddy.docker;
+package io.github.edwardUL99.docker.sandbox;
 
 import static org.junit.Assert.*;
 
-import com.eddy.docker.api.Docker;
-import com.eddy.docker.api.DockerBuilder;
-import com.eddy.docker.api.Utils;
-import com.eddy.docker.api.components.Profile;
-import com.eddy.docker.api.components.Result;
-import com.eddy.docker.api.components.WorkingDirectory;
-import com.eddy.docker.api.impl.DefaultDocker;
+import io.github.edwardUL99.docker.sandbox.api.Docker;
+import io.github.edwardUL99.docker.sandbox.api.DockerBuilder;
+import io.github.edwardUL99.docker.sandbox.api.Utils;
+import io.github.edwardUL99.docker.sandbox.api.components.Profile;
+import io.github.edwardUL99.docker.sandbox.api.components.Result;
+import io.github.edwardUL99.docker.sandbox.api.components.WorkingDirectory;
+import io.github.edwardUL99.docker.sandbox.api.impl.DefaultDocker;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.Container;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
@@ -50,7 +51,7 @@ public class DockerTest {
         docker = (DefaultDocker)new DockerBuilder().withShell(shell).build();//new DefaultDocker(shell);
 
         assertNotNull(docker.getDockerClient());
-        assertEquals(shell, docker.getShell());
+        Assert.assertEquals(shell, docker.getShell());
         assertEquals(0, docker.getProfiles().size());
 
         docker.addProfiles(new Profile("gcc_run", "gcc-docker", "gcc-docker", "sandbox"));

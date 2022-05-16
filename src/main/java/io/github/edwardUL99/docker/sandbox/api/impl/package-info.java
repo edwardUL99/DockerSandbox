@@ -4,4 +4,4 @@
  *
  * Instead, for building the Docker client, use the Docker.Builder class
  */
-package com.eddy.docker.api.impl;
+package io.github.edwardUL99.docker.sandbox.api.impl;

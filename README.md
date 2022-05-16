@@ -36,34 +36,37 @@ To run with tests, you need to build the images in sample-images with gcc-docker
 The resulting JAR file will be output to the target directory 
 
 ## Usage
-The main class to interact with the library is com.eddy.docker.DockerSandbox. The following is an example of how to run
+The main class to interact with the library is DockerSandbox. The following is an example of how to run
 and compile a C program:
+
 ```java
-import com.eddy.docker.api.Docker;
-import com.eddy.docker.DockerSandbox;
-import com.eddy.docker.api.components.Result;
-import com.eddy.docker.api.components.WorkingDirectory;
+package io.github.edwardUL99.docker.sandbox;
+
+import io.github.edwardUL99.docker.sandbox.api.Docker;
+import io.github.edwardUL99.docker.sandbox.api.DockerSandbox;
+import io.github.edwardUL99.docker.sandbox.api.components.Result;
+import io.github.edwardUL99.docker.sandbox.api.components.WorkingDirectory;
 
 public class Example {
     public static void main(String[] args) {
-        DockerSandbox.configure("profiles.json"); // see profiles.json in the root of the project for the example file
-        // Or you can do DockerSandbox.configure(DefaultDocker.Shell.SH or DefaultDocker.Shell.BASH, profiles)
-        DockerSandbox.start("/home/sandbox");
+        DockerSandbox sandbox = DockerSandbox.builder()
+                .withJson("profiles.json") // see profiles.json in the root of the project for the example file
+                // Or you can do withShellProfiles(Docker.Shell.SH or Docker.Shell.BASH, profiles)
+                .withBinding("/path/to/local:/path/to/remote")
+                .withEnvironmentVariables("VAR1=VALUE1", "VAR2=VALUE2")
+                .build();
+
+        sandbox.start("/home/sandbox");
+
         try {
-            Docker.Bindings bindings = new Docker.Bindings();
-            bindings.addBinding("/path/to/local:/path/to/remote");
-            DockerSandbox.setBindings(bindings);
-
-            DockerSandbox.addEnvironmentVariables("VAR1=VALUE1", "VAR2=VALUE2");
-
             Docker.Command command = new Docker.Command("gcc main.c -o main");
-            Result result = DockerSandbox.run("gcc-docker", command,
+            Result result = sandbox.run("gcc_compile", command,
                     new WorkingDirectory.UploadedFile("main.c", "/path/to/main.c"));
 
             // do something with result
 
             command = new Docker.Command("./main");
-            result = DockerSandbox.run("gcc-docker", command, "Stdin Input"); // notice how this run command uses the compiled file from the previous execution
+            result = sandbox.run("gcc_run", command, "Stdin Input"); // notice how this run command uses the compiled file from the previous execution
             // but you don't have to re-upload it as generated files from the previous call
             // are shared
 
@@ -72,9 +75,9 @@ public class Example {
             // the call to finish in the finally block will free any resources such as created files on the host machine in the working directory
         } catch (Exception ex) {
             ex.printStackTrace();
-            DockerSandbox.onException(); // clean up any created containers that didn't get removed
+            sandbox.cleanup(); // clean up any created containers that didn't get removed
         } finally {
-            DockerSandbox.finish(); // ensure all resources are freed
+            sandbox.finish(); // ensure all resources are freed
         }
     }
 }
@@ -135,11 +138,12 @@ DockerSandbox.configure(Docker.Shell.BASH, profile);
 **Note:** As of release 0.3.0, the working-directory parameter in Profile has been removed.
 Instead, the working directory passed into `DockerSandbox.start(String workingDirectory)` is used.
 
-**Note:** As of release 0.5.0, the library consists of a single top-level class `com.eddy.docker.DockerSandbox` and a package `api`.
-The only class intended to be interacted with directly with in using this library is the `DockerSandbox` class, with the
-`api` package being used by the `DockerSandbox` class. `DockerSandbox` takes and returns objects of types defined in the `api` package,
-but only these objects should be used in the context of `DockerSandbox`. The `api` package is **not** stable, but the 
-`DockerSandbox` class will *always* reflect changes made to the `api` package, so it is relatively safer to use.
+**Note:** As of release 1.0.0, the library consists of a package `api` and a single interface `DockerSandbox` which
+represents the API to create and run Docker sandboxes. Instances can be built using the builder returned by `DockerSandbox.builder()`.
+The only interface intended to be interacted with directly with in using this library is the `DockerSandbox` interface and
+any objects returned by the sandbox, such a result. `DockerSandbox` takes and returns objects of types defined in the `api` package,
+but only these objects should be used in the context of `DockerSandbox`. The package has also changed from `com.eddy.docker` to
+`io.github.edwardUL99.docker.sandbox`
 
-This means, if you were using releases before 0.5.0, after upgrading, you will have to fix package imports to reflect the
-new `api` package
+This means, if you were using releases before 1.0.0, after upgrading, you will have to fix package imports to reflect the
+new `api` package and new package names

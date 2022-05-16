@@ -14,10 +14,10 @@
  *    limitations under the License.
  */
 
-package com.eddy.docker.api.components;
+package io.github.edwardUL99.docker.sandbox.api.components;
 
-import com.eddy.docker.api.Docker;
-import com.eddy.docker.api.exceptions.DockerException;
+import io.github.edwardUL99.docker.sandbox.api.Docker;
+import io.github.edwardUL99.docker.sandbox.api.exceptions.DockerException;
 import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.model.Volume;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;

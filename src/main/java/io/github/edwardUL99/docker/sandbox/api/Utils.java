@@ -14,9 +14,9 @@
  *    limitations under the License.
  */
 
-package com.eddy.docker.api;
+package io.github.edwardUL99.docker.sandbox.api;
 
-import com.eddy.docker.api.components.Profile;
+import io.github.edwardUL99.docker.sandbox.api.components.Profile;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
