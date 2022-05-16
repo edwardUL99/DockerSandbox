@@ -1,18 +1,6 @@
 {
   "profiles": [
     {
-      "name": "opengl_docker",
-      "image": "opengl_docker",
-      "container-name": "opengl_docker",
-      "user": "sandbox",
-      "limits": {
-        "cpuCount": 1,
-        "memory": 64,
-        "timeout": 3
-      },
-      "networkDisabled": true
-    },
-    {
       "name": "gcc_compile",
       "image": "gcc-docker",
       "container-name": "gcc-docker",

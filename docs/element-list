@@ -1,3 +1,5 @@
-com.eddy.docker
-com.eddy.docker.components
-com.eddy.docker.exceptions
+io.github.edwardUL99.docker.sandbox
+io.github.edwardUL99.docker.sandbox.api
+io.github.edwardUL99.docker.sandbox.api.components
+io.github.edwardUL99.docker.sandbox.api.exceptions
+io.github.edwardUL99.docker.sandbox.api.impl
