@@ -37,7 +37,7 @@
 
   <groupId>io.github.edwardUL99</groupId>
   <artifactId>docker-sandbox</artifactId>
-  <version>1.0.0-SNAPSHOT</version><!--TODO change to 1.0.0 when deploying release -->
+  <version>1.0.0</version>
 
   <dependencies>
     <dependency>
